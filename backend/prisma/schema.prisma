@@ -1,0 +1,37 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Movie {
+  id        Int          @id @default(autoincrement())
+  title     String
+  type      String
+  rating    Float
+  director  String
+  createdAt DateTime     @default(now())
+  actors    MovieActor[]
+}
+
+model Actor {
+  id          Int          @id @default(autoincrement())
+  name        String
+  birthday    DateTime     @db.Date
+  nationality String
+  movies      MovieActor[]
+}
+
+model MovieActor {
+  movieId Int
+  actorId Int
+  role    String
+
+  movie Movie @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  actor Actor @relation(fields: [actorId], references: [id], onDelete: Cascade)
+
+  @@id([movieId, actorId])
+}

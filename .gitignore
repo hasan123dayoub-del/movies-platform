@@ -1,0 +1,11 @@
+# Dependencies
+node_modules/
+
+# Environment variables (secrets)
+.env
+
+# Generated code (recreated by `npx prisma generate`)
+backend/src/generated/
+
+# Build output
+dist/
