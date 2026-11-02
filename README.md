@@ -35,6 +35,9 @@ npm run dev                   # http://localhost:4000
 
 ## API
 
+A ready Postman collection is in [`backend/postman/`](backend/postman/movies-platform.postman_collection.json) (File → Import).
+
+
 | Method | Endpoint | Description |
 |---|---|---|
 | GET | `/movies` | List all movies |
