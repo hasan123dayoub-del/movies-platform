@@ -9,3 +9,6 @@ backend/src/generated/
 
 # Build output
 dist/
+
+# Editor settings
+.vscode/
