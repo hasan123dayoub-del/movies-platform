@@ -1,8 +1,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
   cacheComponents: true,
+  images: {
+    // Posters are links typed in by the admin, so allow any https host
+    remotePatterns: [{ protocol: "https", hostname: "**" }],
+  },
   partialPrefetching: true,
   turbopack: {
     rules: {
