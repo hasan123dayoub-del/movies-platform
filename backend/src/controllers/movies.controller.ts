@@ -31,10 +31,10 @@ export async function getMovie(req: Request<{ id: string }>, res: Response) {
 
 // POST /movies
 export async function createMovie(req: Request, res: Response) {
-  const { title, type, rating, director } = req.body;
+  const { title, type, rating, director, posterUrl } = req.body;
 
   const movie = await prisma.movie.create({
-    data: { title, type, rating, director },
+    data: { title, type, rating, director, posterUrl },
   });
 
   res.status(201).json(movie);
@@ -50,11 +50,11 @@ export async function updateMovie(req: Request<{ id: string }>, res: Response) {
     return;
   }
 
-  const { title, type, rating, director } = req.body;
+  const { title, type, rating, director, posterUrl } = req.body;
 
   const movie = await prisma.movie.update({
     where: { id },
-    data: { title, type, rating, director },
+    data: { title, type, rating, director, posterUrl },
   });
 
   res.json(movie);

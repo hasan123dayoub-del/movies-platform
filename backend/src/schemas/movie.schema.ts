@@ -5,6 +5,7 @@ export const createMovieSchema = z.object({
   type: z.string().trim().min(1),
   rating: z.number().min(0).max(10),
   director: z.string().trim().min(1),
+  posterUrl: z.url().nullable().optional(),
 });
 
 export const updateMovieSchema = createMovieSchema

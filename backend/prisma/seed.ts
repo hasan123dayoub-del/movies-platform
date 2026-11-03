@@ -30,6 +30,7 @@ async function main() {
       type: "Romance",
       rating: 7.9,
       director: "James Cameron",
+      posterUrl: "https://image.tmdb.org/t/p/w500/9xjZS2rlVxm8SFx8kPC3aIGCOYQ.jpg",
       actors: {
         create: [
           { actorId: leo.id, role: "Jack Dawson" },
@@ -45,6 +46,7 @@ async function main() {
       type: "Sci-Fi",
       rating: 8.8,
       director: "Christopher Nolan",
+      posterUrl: "https://image.tmdb.org/t/p/w500/ljsZTbVsrQSqZgWeep2B1QiDKuh.jpg",
       actors: {
         create: [
           { actorId: leo.id, role: "Cobb" },
@@ -61,6 +63,7 @@ async function main() {
       type: "Adventure",
       rating: 8.0,
       director: "Alejandro G. Inarritu",
+      posterUrl: "https://image.tmdb.org/t/p/w500/tSaBkriE7TpbjFoQUFXuikoz0dF.jpg",
       actors: {
         create: [
           { actorId: leo.id, role: "Hugh Glass" },
@@ -76,6 +79,7 @@ async function main() {
       type: "Comedy",
       rating: 8.2,
       director: "Martin Scorsese",
+      posterUrl: "https://image.tmdb.org/t/p/w500/34m2tygAYBGqA9MXKhRDtzYd4MR.jpg",
       actors: {
         create: [
           { actorId: leo.id, role: "Jordan Belfort" },

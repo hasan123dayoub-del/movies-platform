@@ -13,6 +13,7 @@ model Movie {
   type      String
   rating    Float
   director  String
+  posterUrl String?
   createdAt DateTime     @default(now())
   actors    MovieActor[]
 }
