@@ -1,4 +1,9 @@
+// Fills the database with sample data: npx prisma db seed
+// The data lives in prisma/data/; this file only writes it to the database.
+
 import { prisma } from "../src/lib/prisma.js";
+import { actors, type ActorKey } from "./data/actors.js";
+import { movies } from "./data/movies.js";
 
 async function main() {
   // 1. Clear old data (children first, then parents)
@@ -6,90 +11,28 @@ async function main() {
   await prisma.movie.deleteMany();
   await prisma.actor.deleteMany();
 
-  // 2. Actors
-  const leo = await prisma.actor.create({
-    data: { name: "Leonardo DiCaprio", birthday: new Date("1974-11-11"), nationality: "American" },
-  });
-  const kate = await prisma.actor.create({
-    data: { name: "Kate Winslet", birthday: new Date("1975-10-05"), nationality: "British" },
-  });
-  const tom = await prisma.actor.create({
-    data: { name: "Tom Hardy", birthday: new Date("1977-09-15"), nationality: "British" },
-  });
-  const joseph = await prisma.actor.create({
-    data: { name: "Joseph Gordon-Levitt", birthday: new Date("1981-02-17"), nationality: "American" },
-  });
-  const margot = await prisma.actor.create({
-    data: { name: "Margot Robbie", birthday: new Date("1990-07-02"), nationality: "Australian" },
-  });
+  // 2. Actors: remember each new id under its short name
+  const ids = {} as Record<ActorKey, number>;
+  for (const [key, actor] of Object.entries(actors) as [ActorKey, (typeof actors)[ActorKey]][]) {
+    const created = await prisma.actor.create({
+      data: { ...actor, birthday: new Date(actor.birthday) },
+    });
+    ids[key] = created.id;
+  }
 
   // 3. Movies, each with its actors and their roles
-  await prisma.movie.create({
-    data: {
-      title: "Titanic",
-      type: "Romance",
-      rating: 7.9,
-      director: "James Cameron",
-      posterUrl: "https://image.tmdb.org/t/p/w500/9xjZS2rlVxm8SFx8kPC3aIGCOYQ.jpg",
-      actors: {
-        create: [
-          { actorId: leo.id, role: "Jack Dawson" },
-          { actorId: kate.id, role: "Rose DeWitt Bukater" },
-        ],
+  for (const { cast, ...movie } of movies) {
+    await prisma.movie.create({
+      data: {
+        ...movie,
+        actors: {
+          create: cast.map(([actor, role]) => ({ actorId: ids[actor], role })),
+        },
       },
-    },
-  });
+    });
+  }
 
-  await prisma.movie.create({
-    data: {
-      title: "Inception",
-      type: "Sci-Fi",
-      rating: 8.8,
-      director: "Christopher Nolan",
-      posterUrl: "https://image.tmdb.org/t/p/w500/ljsZTbVsrQSqZgWeep2B1QiDKuh.jpg",
-      actors: {
-        create: [
-          { actorId: leo.id, role: "Cobb" },
-          { actorId: joseph.id, role: "Arthur" },
-          { actorId: tom.id, role: "Eames" },
-        ],
-      },
-    },
-  });
-
-  await prisma.movie.create({
-    data: {
-      title: "The Revenant",
-      type: "Adventure",
-      rating: 8.0,
-      director: "Alejandro G. Inarritu",
-      posterUrl: "https://image.tmdb.org/t/p/w500/tSaBkriE7TpbjFoQUFXuikoz0dF.jpg",
-      actors: {
-        create: [
-          { actorId: leo.id, role: "Hugh Glass" },
-          { actorId: tom.id, role: "John Fitzgerald" },
-        ],
-      },
-    },
-  });
-
-  await prisma.movie.create({
-    data: {
-      title: "The Wolf of Wall Street",
-      type: "Comedy",
-      rating: 8.2,
-      director: "Martin Scorsese",
-      posterUrl: "https://image.tmdb.org/t/p/w500/34m2tygAYBGqA9MXKhRDtzYd4MR.jpg",
-      actors: {
-        create: [
-          { actorId: leo.id, role: "Jordan Belfort" },
-          { actorId: margot.id, role: "Naomi Lapaglia" },
-        ],
-      },
-    },
-  });
-
-  console.log("Seeding finished");
+  console.log(`Seeded ${Object.keys(actors).length} actors and ${movies.length} movies`);
 }
 
 main()

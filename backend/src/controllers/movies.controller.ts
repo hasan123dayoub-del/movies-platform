@@ -1,76 +1,32 @@
 import type { Request, Response } from "express";
-import { prisma } from "../lib/prisma.js";
+import * as moviesService from "../services/movies.service.js";
+
+// The controller only speaks HTTP: read the request, call the service, send the response.
+// A 404 from the service is thrown and reaches the error handler by itself (Express 5).
 
 // GET /movies
 export async function getMovies(req: Request, res: Response) {
-  const movies = await prisma.movie.findMany({
-    orderBy: { id: "asc" },
-  });
-
-  res.json(movies);
+  res.json(await moviesService.listMovies());
 }
 
 // GET /movies/:id
 export async function getMovie(req: Request<{ id: string }>, res: Response) {
-  const movie = await prisma.movie.findUnique({
-    where: { id: Number(req.params.id) },
-    include: {
-      actors: {
-        include: { actor: true },
-      },
-    },
-  });
-
-  if (!movie) {
-    res.status(404).json({ message: "Movie not found" });
-    return;
-  }
-
-  res.json(movie);
+  res.json(await moviesService.getMovieWithCast(Number(req.params.id)));
 }
 
 // POST /movies
 export async function createMovie(req: Request, res: Response) {
-  const { title, type, rating, director, posterUrl } = req.body;
-
-  const movie = await prisma.movie.create({
-    data: { title, type, rating, director, posterUrl },
-  });
-
+  const movie = await moviesService.createMovie(req.body);
   res.status(201).json(movie);
 }
 
 // PUT /movies/:id
 export async function updateMovie(req: Request<{ id: string }>, res: Response) {
-  const id = Number(req.params.id);
-
-  const exists = await prisma.movie.findUnique({ where: { id } });
-  if (!exists) {
-    res.status(404).json({ message: "Movie not found" });
-    return;
-  }
-
-  const { title, type, rating, director, posterUrl } = req.body;
-
-  const movie = await prisma.movie.update({
-    where: { id },
-    data: { title, type, rating, director, posterUrl },
-  });
-
-  res.json(movie);
+  res.json(await moviesService.updateMovie(Number(req.params.id), req.body));
 }
 
 // DELETE /movies/:id
 export async function deleteMovie(req: Request<{ id: string }>, res: Response) {
-  const id = Number(req.params.id);
-
-  const exists = await prisma.movie.findUnique({ where: { id } });
-  if (!exists) {
-    res.status(404).json({ message: "Movie not found" });
-    return;
-  }
-
-  await prisma.movie.delete({ where: { id } });
-
+  await moviesService.deleteMovie(Number(req.params.id));
   res.status(204).send();
 }

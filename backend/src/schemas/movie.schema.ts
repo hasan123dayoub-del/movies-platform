@@ -1,15 +1,30 @@
 import { z } from "zod";
+import {
+  requiredText,
+  optionalImageUrl,
+  atLeastOneField,
+  atLeastOneFieldMessage,
+} from "./common.schema.js";
 
 export const createMovieSchema = z.object({
-  title: z.string().trim().min(1),
-  type: z.string().trim().min(1),
-  rating: z.number().min(0).max(10),
-  director: z.string().trim().min(1),
-  posterUrl: z.url().nullable().optional(),
+  title: requiredText("Title", 200),
+  type: requiredText("Type", 50),
+  rating: z
+    .number({
+      error: (issue) =>
+        issue.input === undefined ? "Rating is required" : "Rating must be a number",
+    })
+    .min(0, "Rating can't be below 0")
+    .max(10, "Rating can't be above 10"),
+  director: requiredText("Director"),
+  posterUrl: optionalImageUrl("Poster"),
 });
 
 export const updateMovieSchema = createMovieSchema
   .partial()
-  .refine((data) => Object.keys(data).length > 0, {
-    message: "Send at least one field to update",
-  });
+  .refine(atLeastOneField, atLeastOneFieldMessage);
+
+// The validated body types, used by the service (no need to write them twice)
+export type CreateMovieInput = z.infer<typeof createMovieSchema>;
+// Any subset of the create fields
+export type UpdateMovieInput = Partial<CreateMovieInput>;

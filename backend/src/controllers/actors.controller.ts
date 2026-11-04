@@ -1,74 +1,29 @@
 import type { Request, Response } from "express";
-import { prisma } from "../lib/prisma.js";
+import * as actorsService from "../services/actors.service.js";
 
+// GET /actors
 export async function getActors(req: Request, res: Response) {
-  const actors = await prisma.actor.findMany({
-    orderBy: { id: "asc" },
-  });
-
-  res.json(actors);
+  res.json(await actorsService.listActors());
 }
 
+// GET /actors/:id
 export async function getActor(req: Request<{ id: string }>, res: Response) {
-  const actor = await prisma.actor.findUnique({
-    where: { id: Number(req.params.id) },
-    include: {
-      movies: {
-        include: { movie: true },
-      },
-    },
-  });
-  if (!actor) {
-    res.status(404).json({ message: "Actor not found" });
-    return;
-  }
-
-  res.json(actor);
+  res.json(await actorsService.getActorWithMovies(Number(req.params.id)));
 }
 
+// POST /actors
 export async function createActor(req: Request, res: Response) {
-  const { name, birthday, nationality } = req.body;
-
-  const actor = await prisma.actor.create({
-    data: { name, birthday: new Date(birthday), nationality },
-  });
-
+  const actor = await actorsService.createActor(req.body);
   res.status(201).json(actor);
 }
 
+// PUT /actors/:id
 export async function updateActor(req: Request<{ id: string }>, res: Response) {
-  const id = Number(req.params.id);
-
-  const exists = await prisma.actor.findUnique({
-    where: { id },
-  });
-  if (!exists) {
-    res.status(404).json({ message: "Actor not found" });
-    return;
-  }
-
-  const { name, birthday, nationality } = req.body;
-  const actor = await prisma.actor.update({
-    where: { id },
-    data: {
-      name,
-      nationality,
-      ...(birthday && { birthday: new Date(birthday) }),
-    },
-  });
-
-  res.json(actor);
+  res.json(await actorsService.updateActor(Number(req.params.id), req.body));
 }
 
+// DELETE /actors/:id
 export async function deleteActor(req: Request<{ id: string }>, res: Response) {
-  const id = Number(req.params.id);
-  const exists = await prisma.actor.findUnique({
-    where: { id },
-  });
-  if (!exists) {
-    res.status(404).json({ message: "Actor not found" });
-    return;
-  }
-  await prisma.actor.delete({ where: { id } });
+  await actorsService.deleteActor(Number(req.params.id));
   res.status(204).send();
 }

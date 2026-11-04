@@ -23,6 +23,7 @@ model Actor {
   name        String
   birthday    DateTime     @db.Date
   nationality String
+  photoUrl    String?
   movies      MovieActor[]
 }
 
