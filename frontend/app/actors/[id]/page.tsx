@@ -37,7 +37,7 @@ export default async function ActorPage({ params }: PageProps<"/actors/[id]">) {
           </Link>
 
           <div className="mt-8 flex flex-col gap-6 sm:flex-row sm:items-center sm:gap-8">
-            <ActorAvatar name={actor.name} size="lg" />
+            <ActorAvatar actor={actor} size="lg" />
             <div>
               <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
                 {actor.name}

@@ -1,6 +1,9 @@
+import Image from "next/image";
+import type { Actor } from "@/lib/types";
 import { getInitials } from "@/lib/format";
 
-// A colored circle with the actor's initials; the color stays the same for the same name
+// Used when an actor has no photo: a colored circle with their initials,
+// and the same name always gets the same color
 const colors = [
   "bg-rose-500",
   "bg-sky-500",
@@ -11,24 +14,42 @@ const colors = [
 ];
 
 const sizes = {
-  md: "h-14 w-14 text-lg",
-  lg: "h-28 w-28 text-4xl",
+  md: { box: "h-14 w-14 text-lg", pixels: "56px" },
+  lg: { box: "h-28 w-28 text-4xl sm:h-36 sm:w-36", pixels: "144px" },
 };
 
 type ActorAvatarProps = {
-  name: string;
+  actor: Pick<Actor, "name" | "photoUrl">;
   size?: keyof typeof sizes;
 };
 
-export default function ActorAvatar({ name, size = "md" }: ActorAvatarProps) {
-  const sum = [...name].reduce((total, char) => total + char.charCodeAt(0), 0);
+export default function ActorAvatar({ actor, size = "md" }: ActorAvatarProps) {
+  const { box, pixels } = sizes[size];
+
+  if (actor.photoUrl) {
+    return (
+      <span
+        className={`relative shrink-0 overflow-hidden rounded-full bg-zinc-800 ring-2 ring-white/10 ${box}`}
+      >
+        <Image
+          src={actor.photoUrl}
+          alt={actor.name}
+          fill
+          sizes={pixels}
+          className="object-cover object-top"
+        />
+      </span>
+    );
+  }
+
+  const sum = [...actor.name].reduce((total, char) => total + char.charCodeAt(0), 0);
   const color = colors[sum % colors.length];
 
   return (
     <span
-      className={`grid shrink-0 place-items-center rounded-full font-bold text-white ${color} ${sizes[size]}`}
+      className={`grid shrink-0 place-items-center rounded-full font-bold text-white ${color} ${box}`}
     >
-      {getInitials(name)}
+      {getInitials(actor.name)}
     </span>
   );
 }

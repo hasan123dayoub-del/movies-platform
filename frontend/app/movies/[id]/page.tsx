@@ -96,7 +96,7 @@ export default async function MoviePage({ params }: PageProps<"/movies/[id]">) {
                 href={`/actors/${actor.id}`}
                 className="group flex items-center gap-4 rounded-2xl border border-white/10 bg-zinc-900 p-4 transition hover:border-white/20 hover:bg-zinc-800/80"
               >
-                <ActorAvatar name={actor.name} />
+                <ActorAvatar actor={actor} />
                 <div className="min-w-0">
                   <p className="truncate font-semibold transition group-hover:text-amber-400">
                     {actor.name}

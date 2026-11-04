@@ -10,6 +10,9 @@ const genreColors: Record<string, string> = {
   Comedy: "from-amber-400 to-orange-800",
   Drama: "from-violet-500 to-purple-900",
   Action: "from-red-500 to-red-900",
+  Crime: "from-slate-500 to-slate-900",
+  Thriller: "from-sky-700 to-slate-900",
+  Musical: "from-fuchsia-500 to-indigo-900",
 };
 const defaultColors = "from-zinc-500 to-zinc-800";
 

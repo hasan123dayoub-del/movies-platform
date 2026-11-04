@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { getActors } from "@/lib/api";
 import { getAge } from "@/lib/format";
 import ActorAvatar from "@/components/ActorAvatar";
@@ -23,20 +24,34 @@ export default async function ActorsPage() {
           No actors yet.
         </div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4">
           {actors.map((actor) => (
             <Link
               key={actor.id}
               href={`/actors/${actor.id}`}
-              className="group flex items-center gap-4 rounded-2xl border border-white/10 bg-zinc-900 p-5 transition hover:-translate-y-0.5 hover:border-white/20 hover:bg-zinc-800/80"
+              className="group overflow-hidden rounded-2xl border border-white/10 bg-zinc-900 transition duration-300 hover:-translate-y-1 hover:border-white/20 hover:shadow-2xl hover:shadow-black/60"
             >
-              <ActorAvatar name={actor.name} />
-              <div className="min-w-0">
-                <p className="truncate text-lg font-semibold transition group-hover:text-amber-400">
+              <div className="relative aspect-3/4 overflow-hidden bg-zinc-800">
+                {actor.photoUrl ? (
+                  <Image
+                    src={actor.photoUrl}
+                    alt={actor.name}
+                    fill
+                    sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
+                    className="object-cover object-top transition duration-500 group-hover:scale-105"
+                  />
+                ) : (
+                  <div className="grid h-full place-items-center">
+                    <ActorAvatar actor={actor} size="lg" />
+                  </div>
+                )}
+              </div>
+              <div className="p-4">
+                <p className="truncate font-semibold transition group-hover:text-amber-400">
                   {actor.name}
                 </p>
-                <p className="text-sm text-zinc-400">
-                  {actor.nationality} · {getAge(actor.birthday)} years old
+                <p className="mt-0.5 text-sm text-zinc-400">
+                  {actor.nationality} · {getAge(actor.birthday)}
                 </p>
               </div>
             </Link>

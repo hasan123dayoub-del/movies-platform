@@ -15,6 +15,7 @@ export default function Navbar() {
         <div className="flex items-center gap-6 text-sm font-medium">
           <NavLink href="/">Movies</NavLink>
           <NavLink href="/actors">Actors</NavLink>
+          <NavLink href="/admin">Admin</NavLink>
         </div>
       </nav>
     </header>

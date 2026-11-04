@@ -13,6 +13,7 @@ export type Actor = {
   name: string;
   birthday: string;
   nationality: string;
+  photoUrl: string | null;
 };
 
 // The movie as returned by GET /movies/:id (with its cast)
@@ -28,3 +29,9 @@ export type ActorWithMovies = Actor & {
 // What we send when creating or updating (no id, no createdAt)
 export type MovieInput = Omit<Movie, "id" | "createdAt">;
 export type ActorInput = Omit<Actor, "id">;
+
+// Validation errors from the API, one message per field: { rating: "Too big..." }
+export type FieldErrors = Record<string, string>;
+
+// The result of a create or update: the saved item, or the errors to show
+export type SaveResult<T> = { ok: true; data: T } | { ok: false; errors: FieldErrors };
