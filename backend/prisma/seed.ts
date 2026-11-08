@@ -15,6 +15,13 @@ const demoAccounts = [
 ] as const;
 
 async function main() {
+  // On the server (Render) the seed runs at every start: only fill an empty database,
+  // never wipe data that is already there. Locally, `npx prisma db seed` still resets.
+  if (process.env.SEED_ONLY_IF_EMPTY && (await prisma.movie.count()) > 0) {
+    console.log("Database already has data, skipping the seed.");
+    return;
+  }
+
   // 1. Clear old data. Deleting a series also deletes its seasons, episodes and cast
   // links, and deleting an actor deletes their cast links (onDelete: Cascade)
   await prisma.series.deleteMany();

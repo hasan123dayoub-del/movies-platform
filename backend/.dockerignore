@@ -1,0 +1,10 @@
+# Kept out of the Docker image
+node_modules
+dist
+src/generated
+.env
+.env.*
+postman
+.postman
+Dockerfile
+.dockerignore

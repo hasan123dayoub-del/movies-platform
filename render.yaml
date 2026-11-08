@@ -1,0 +1,16 @@
+# Render Blueprint: the API as a Docker web service.
+# DATABASE_URL (Neon) and JWT_SECRET are secrets, so they are typed in Render's dashboard.
+services:
+  - type: web
+    name: movies-platform-api
+    runtime: docker
+    rootDir: backend
+    dockerfilePath: ./Dockerfile
+    region: frankfurt
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
