@@ -10,23 +10,25 @@ import {
   addActorToMovie,
   updateActorRole,
   removeActorFromMovie,
-} from "../controllers/movieActors.controller.js";
+} from "../controllers/cast.controller.js";
 import { validate } from "../middleware/validate.js";
+import { adminOnly } from "../middleware/auth.js";
 import { idParams, castParams } from "../schemas/common.schema.js";
-import { createMovieSchema, updateMovieSchema } from "../schemas/movie.schema.js";
+import { createMovieSchema, updateMovieSchema, movieListQuery } from "../schemas/movie.schema.js";
 import { addActorSchema, updateRoleSchema } from "../schemas/cast.schema.js";
 
 const router = Router();
 
-router.get("/", getMovies);
+// Reading is public; changing anything needs an admin (adminOnly)
+router.get("/", validate({ query: movieListQuery }), getMovies);
 router.get("/:id", validate({ params: idParams }), getMovie);
-router.post("/", validate({ body: createMovieSchema }), createMovie);
-router.put("/:id", validate({ params: idParams, body: updateMovieSchema }), updateMovie);
-router.delete("/:id", validate({ params: idParams }), deleteMovie);
+router.post("/", adminOnly, validate({ body: createMovieSchema }), createMovie);
+router.put("/:id", adminOnly, validate({ params: idParams, body: updateMovieSchema }), updateMovie);
+router.delete("/:id", adminOnly, validate({ params: idParams }), deleteMovie);
 
 // Cast: actors in a movie and their roles
-router.post("/:id/actors", validate({ params: idParams, body: addActorSchema }), addActorToMovie);
-router.put("/:id/actors/:actorId", validate({ params: castParams, body: updateRoleSchema }), updateActorRole);
-router.delete("/:id/actors/:actorId", validate({ params: castParams }), removeActorFromMovie);
+router.post("/:id/actors", adminOnly, validate({ params: idParams, body: addActorSchema }), addActorToMovie);
+router.put("/:id/actors/:actorId", adminOnly, validate({ params: castParams, body: updateRoleSchema }), updateActorRole);
+router.delete("/:id/actors/:actorId", adminOnly, validate({ params: castParams }), removeActorFromMovie);
 
 export default router;

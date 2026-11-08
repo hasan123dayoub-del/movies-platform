@@ -8,23 +8,112 @@ datasource db {
 }
 
 model Movie {
-  id        Int          @id @default(autoincrement())
-  title     String
-  type      String
-  rating    Float
-  director  String
-  posterUrl String?
-  createdAt DateTime     @default(now())
-  actors    MovieActor[]
+  id          Int          @id @default(autoincrement())
+  title       String
+  type        String
+  rating      Float
+  director    String
+  // The year it came out, used for "newest first". Optional so older rows stay valid
+  releaseYear Int?
+  // A short summary of the story
+  description String?
+  posterUrl   String?
+  createdAt   DateTime     @default(now())
+  actors      MovieActor[]
+
+  // The movies page filters by genre
+  @@index([type])
 }
 
 model Actor {
-  id          Int          @id @default(autoincrement())
+  id          Int           @id @default(autoincrement())
   name        String
-  birthday    DateTime     @db.Date
+  birthday    DateTime      @db.Date
   nationality String
   photoUrl    String?
   movies      MovieActor[]
+  series      SeriesActor[]
+}
+
+// A TV series: like a movie, but it runs over years and is split into seasons
+model Series {
+  id          Int           @id @default(autoincrement())
+  title       String
+  type        String
+  rating      Float
+  // Who created/directed it (the "director" of a series)
+  creator     String
+  startYear   Int
+  // null = still running
+  endYear     Int?
+  description String?
+  posterUrl   String?
+  createdAt   DateTime      @default(now())
+  seasons     Season[]
+  actors      SeriesActor[]
+
+  @@index([type])
+}
+
+// One season of a series ("الجزء الثاني"); its number is unique inside the series
+model Season {
+  id          Int       @id @default(autoincrement())
+  seriesId    Int
+  number      Int
+  // Some seasons have their own name (e.g. Al Hayba season 2: "Al Awda")
+  title       String?
+  releaseYear Int?
+  description String?
+  posterUrl   String?
+  episodes    Episode[]
+
+  series Series @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+
+  @@unique([seriesId, number])
+}
+
+// One episode of a season; its number is unique inside the season
+model Episode {
+  id          Int       @id @default(autoincrement())
+  seasonId    Int
+  number      Int
+  title       String
+  airDate     DateTime? @db.Date
+  // Length in minutes
+  runtime     Int?
+  description String?
+
+  season Season @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+
+  @@unique([seasonId, number])
+}
+
+// Who plays whom in a series (like MovieActor)
+model SeriesActor {
+  seriesId Int
+  actorId  Int
+  role     String
+
+  series Series @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+  actor  Actor  @relation(fields: [actorId], references: [id], onDelete: Cascade)
+
+  @@id([seriesId, actorId])
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  name         String
+  // Always stored lowercase, so "Sam@Mail.com" and "sam@mail.com" are one account
+  email        String   @unique
+  // A bcrypt hash; the password itself is never stored
+  passwordHash String
+  role         Role     @default(USER)
+  createdAt    DateTime @default(now())
 }
 
 model MovieActor {

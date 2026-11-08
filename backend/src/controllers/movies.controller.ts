@@ -1,12 +1,13 @@
 import type { Request, Response } from "express";
 import * as moviesService from "../services/movies.service.js";
+import type { MovieListQuery } from "../schemas/movie.schema.js";
 
 // The controller only speaks HTTP: read the request, call the service, send the response.
 // A 404 from the service is thrown and reaches the error handler by itself (Express 5).
 
-// GET /movies
-export async function getMovies(req: Request, res: Response) {
-  res.json(await moviesService.listMovies());
+// GET /movies?search=&type=&sort= (validate() put the clean query in res.locals)
+export async function getMovies(req: Request, res: Response<unknown, { query: MovieListQuery }>) {
+  res.json(await moviesService.listMovies(res.locals.query));
 }
 
 // GET /movies/:id

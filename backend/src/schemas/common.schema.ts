@@ -35,6 +35,54 @@ export function positiveId(label: string) {
     .positive(`${label} must be a positive number`);
 }
 
+// A rating out of 10 (movies and series)
+export function ratingField() {
+  return z
+    .number({
+      error: (issue) =>
+        issue.input === undefined ? "Rating is required" : "Rating must be a number",
+    })
+    .min(0, "Rating can't be below 0")
+    .max(10, "Rating can't be above 10");
+}
+
+// A year like 2010. The first film ever shown is from 1888; announced titles may be
+// a few years ahead
+export const FIRST_FILM_YEAR = 1888;
+export function yearField(label: string) {
+  return z
+    .number({
+      error: (issue) =>
+        issue.input === undefined ? `${label} is required` : `${label} must be a number`,
+    })
+    .int(`${label} must be a whole year, like 2010`)
+    .min(FIRST_FILM_YEAR, `${label} can't be before ${FIRST_FILM_YEAR}`)
+    .refine((year) => year <= new Date().getFullYear() + 5, {
+      error: `${label} is too far in the future`,
+    });
+}
+
+// Optional free text, e.g. a description; null means "none"
+export function optionalText(label: string, max = 1000) {
+  return z
+    .string({ error: `${label} must be text` })
+    .trim()
+    .max(max, `${label} must be at most ${max} characters`)
+    .nullable()
+    .exactOptional();
+}
+
+// A text filter from the query string (?search=dark). An empty box ("?search=")
+// counts as no filter, so the result is a string with something in it, or undefined.
+export function optionalSearch(label: string) {
+  return z
+    .string({ error: `${label} must be text` })
+    .trim()
+    .max(100, `${label} must be at most 100 characters`)
+    .optional()
+    .transform((value) => value || undefined);
+}
+
 // Rejects an update body with no fields in it
 export function atLeastOneField(data: object) {
   return Object.keys(data).length > 0;

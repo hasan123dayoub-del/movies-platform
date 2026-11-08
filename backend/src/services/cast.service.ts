@@ -31,7 +31,7 @@ export async function addActorToMovie(movieId: number, { actorId, role }: AddAct
   });
 }
 
-export async function updateActorRole(movieId: number, actorId: number, {role}: UpdateRoleInput) {
+export async function updateActorRole(movieId: number, actorId: number, { role }: UpdateRoleInput) {
   await findCastMemberOrFail(movieId, actorId);
   return prisma.movieActor.update({
     where: { movieId_actorId: { movieId, actorId } },

@@ -7,15 +7,17 @@ import {
   deleteActor,
 } from "../controllers/actors.controller.js";
 import { validate } from "../middleware/validate.js";
+import { adminOnly } from "../middleware/auth.js";
 import { idParams } from "../schemas/common.schema.js";
-import { createActorSchema, updateActorSchema } from "../schemas/actor.schema.js";
+import { createActorSchema, updateActorSchema, actorListQuery } from "../schemas/actor.schema.js";
 
 const router = Router();
 
-router.get("/", getActors);
+// Reading is public; changing anything needs an admin (adminOnly)
+router.get("/", validate({ query: actorListQuery }), getActors);
 router.get("/:id", validate({ params: idParams }), getActor);
-router.post("/", validate({ body: createActorSchema }), createActor);
-router.put("/:id", validate({ params: idParams, body: updateActorSchema }), updateActor);
-router.delete("/:id", validate({ params: idParams }), deleteActor);
+router.post("/", adminOnly, validate({ body: createActorSchema }), createActor);
+router.put("/:id", adminOnly, validate({ params: idParams, body: updateActorSchema }), updateActor);
+router.delete("/:id", adminOnly, validate({ params: idParams }), deleteActor);
 
 export default router;

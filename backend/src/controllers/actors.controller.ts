@@ -1,9 +1,10 @@
 import type { Request, Response } from "express";
 import * as actorsService from "../services/actors.service.js";
+import type { ActorListQuery } from "../schemas/actor.schema.js";
 
-// GET /actors
-export async function getActors(req: Request, res: Response) {
-  res.json(await actorsService.listActors());
+// GET /actors?search= (validate() put the clean query in res.locals)
+export async function getActors(req: Request, res: Response<unknown, { query: ActorListQuery }>) {
+  res.json(await actorsService.listActors(res.locals.query));
 }
 
 // GET /actors/:id

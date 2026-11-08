@@ -4,6 +4,7 @@ import {
   optionalImageUrl,
   atLeastOneField,
   atLeastOneFieldMessage,
+  optionalSearch,
 } from "./common.schema.js";
 
 export const createActorSchema = z.object({
@@ -31,3 +32,10 @@ export const updateActorSchema = createActorSchema
 
 export type CreateActorInput = z.infer<typeof createActorSchema>;
 export type UpdateActorInput = Partial<CreateActorInput>;
+
+// GET /actors?search=leo
+export const actorListQuery = z.object({
+  // Part of the name, any case
+  search: optionalSearch("Search"),
+});
+export type ActorListQuery = z.infer<typeof actorListQuery>;
