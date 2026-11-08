@@ -12,3 +12,7 @@ dist/
 
 # Editor settings
 .vscode/
+
+# Postman app sync files (the shared collection is backend/postman/*.postman_collection.json)
+/postman/
+/.postman/
