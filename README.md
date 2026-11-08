@@ -1,5 +1,11 @@
 # Movies Platform
 
+[![CI](https://github.com/hasan123dayoub-del/movies-platform/actions/workflows/ci.yml/badge.svg)](https://github.com/hasan123dayoub-del/movies-platform/actions/workflows/ci.yml)
+
+**Live demo:** [movies-platform-web.onrender.com](https://movies-platform-web.onrender.com) · **API:** [movies-platform-api.onrender.com](https://movies-platform-api.onrender.com/health) (log in with `admin@movies.dev` / `admin1234` to see the admin area)
+
+> Hosted on free plans: after 15 minutes without visitors the site and the API go to sleep, so the first visit can take about a minute to wake them up.
+
 A platform for movies, TV series and actors: every movie and series has its cast, every series has its seasons and episodes, and every actor has the role they played in each. Arabic titles are shown in Arabic (right to left) next to English ones. A public site to browse them, and an admin area to manage them.
 
 - **Backend:** Express 5 + TypeScript + Prisma 7 + PostgreSQL 17 (Docker) + Zod 4
@@ -116,8 +122,28 @@ New sign-ups are always regular users. To make an account an admin: `npm run mak
 | Development | `npm run dev` | `npm run dev` |
 | Type check | `npm run typecheck` | `npm run typecheck` |
 | Lint | | `npm run lint` |
+| Tests | `npm test` (see [Tests](#tests)) | |
 | Production build | `npm run build` → `dist/` | `npm run build` |
 | Production start | `npm start` | `npm start` |
+
+### Tests
+
+The API tests (Vitest + Supertest, [`backend/tests/`](backend/tests/)) cover auth and the login limit, permissions, validation, movies, cast, series, seasons and episodes. They run against a separate `movies_test` database, never the development one, and prepare it themselves (migrations + sample data):
+
+```bash
+docker exec movies-db createdb -U movies movies_test   # once
+cd backend && npm test
+```
+
+GitHub Actions runs them on every push, then builds the website against a running API ([`ci.yml`](.github/workflows/ci.yml)).
+
+## Deployment
+
+Both apps run on [Render](https://render.com) as Docker services in Frankfurt, described in [`render.yaml`](render.yaml). The database is [Neon](https://neon.tech) PostgreSQL in the same region.
+
+- **API** ([`backend/Dockerfile`](backend/Dockerfile)): on every start it applies new migrations, and fills the database with the sample data only if it is empty.
+- **Website** ([`frontend/Dockerfile`](frontend/Dockerfile)): pages are pre-rendered from the API at build time, so the build wakes the free API up first.
+- Secrets (`DATABASE_URL`, `JWT_SECRET`) are set in the Render dashboard, never in the repo.
 
 ## API
 
@@ -198,6 +224,6 @@ Sample data sources: posters and photos are linked from Wikimedia; actor birthda
 - [x] Accounts for everyone (JWT in an httpOnly cookie) and admin-only writes
 - [ ] Ratings, reviews and a watchlist
 - [x] Environment validation (Zod) and a health check
-- [ ] Dockerfile
-- [ ] Tests (Vitest + Supertest) and GitHub Actions CI
-- [ ] Deployment (Vercel + Render + Neon)
+- [x] Dockerfiles for the API and the website
+- [x] Tests (Vitest + Supertest) and GitHub Actions CI
+- [x] Deployment (Render + Neon)

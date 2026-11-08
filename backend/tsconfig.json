@@ -1,5 +1,5 @@
 {
-  // Used by the editor and `npm run typecheck`: checks the API, the seed and the Prisma config.
+  // Used by the editor and `npm run typecheck`: checks the API, the seed, the tests and the configs.
   // `npm run build` uses tsconfig.build.json, which compiles only src/ into dist/.
   "compilerOptions": {
     // Node.js with ES modules ("type": "module" in package.json)
@@ -22,5 +22,5 @@
     "moduleDetection": "force",
     "skipLibCheck": true
   },
-  "include": ["src", "prisma", "prisma.config.ts"]
+  "include": ["src", "prisma", "prisma.config.ts", "tests", "vitest.config.ts"]
 }
