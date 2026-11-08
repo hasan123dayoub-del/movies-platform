@@ -1,0 +1,9 @@
+# Kept out of the Docker image
+node_modules
+.next
+.env
+.env.*
+!.env.example
+tsconfig.tsbuildinfo
+Dockerfile
+.dockerignore

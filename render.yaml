@@ -14,3 +14,15 @@ services:
         sync: false
       - key: JWT_SECRET
         generateValue: true
+
+  # The website (Next.js), reading from the API above
+  - type: web
+    name: movies-platform-web
+    runtime: docker
+    rootDir: frontend
+    dockerfilePath: ./Dockerfile
+    region: frankfurt
+    plan: free
+    envVars:
+      - key: API_URL
+        value: https://movies-platform-api.onrender.com
