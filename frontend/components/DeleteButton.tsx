@@ -3,20 +3,32 @@
 type DeleteButtonProps = {
   action: () => Promise<void>;
   name: string;
+  // Optional wording, e.g. "Remove" for taking an actor out of a cast
+  label?: string;
+  question?: string;
 };
 
-export default function DeleteButton({ action, name }: DeleteButtonProps) {
+export default function DeleteButton({
+  action,
+  name,
+  label = "Delete",
+  question = `Delete "${name}"? This can't be undone.`,
+}: DeleteButtonProps) {
   return (
     <form
       action={action}
       onSubmit={(e) => {
-        if (!confirm(`Delete "${name}"? This can't be undone.`)) {
+        if (!confirm(question)) {
           e.preventDefault();
         }
       }}
     >
-      <button className="rounded-lg px-3 py-1.5 text-sm text-red-400 transition hover:bg-red-500/10">
-        Delete
+      <button
+        type="submit"
+        // Screen readers hear which row the button belongs to
+        aria-label={`${label} ${name}`}
+        className="rounded-lg px-3 py-1.5 text-sm text-red-400 transition hover:bg-red-500/10">
+        {label}
       </button>
     </form>
   );

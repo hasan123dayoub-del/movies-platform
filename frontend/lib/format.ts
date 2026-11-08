@@ -20,10 +20,10 @@ export function formatDate(date: string) {
   });
 }
 
-// Full years between the birthday and today
-export function getAge(birthday: string) {
+// Full years between the birthday and `today` (from getToday(), see below)
+export function getAge(birthday: string, todayIso: string) {
   const born = new Date(birthday);
-  const today = new Date();
+  const today = new Date(todayIso);
   let age = today.getUTCFullYear() - born.getUTCFullYear();
   const hadBirthday =
     today.getUTCMonth() > born.getUTCMonth() ||
@@ -33,4 +33,22 @@ export function getAge(birthday: string) {
     age--;
   }
   return age;
+}
+
+// A series' years: "2008 – 2013", "2019" (one year), or "2016 – present" (still running)
+export function formatYears(startYear: number, endYear: number | null) {
+  if (endYear === null) return `${startYear} – present`;
+  return endYear === startYear ? String(startYear) : `${startYear} – ${endYear}`;
+}
+
+// 58 -> "58 min", 135 -> "2h 15m"
+export function formatRuntime(minutes: number) {
+  if (minutes < 60) return `${minutes} min`;
+  const rest = minutes % 60;
+  return rest ? `${Math.floor(minutes / 60)}h ${rest}m` : `${minutes / 60}h`;
+}
+
+// "2 seasons", "1 episode"
+export function plural(count: number, word: string) {
+  return `${count} ${word}${count === 1 ? "" : "s"}`;
 }

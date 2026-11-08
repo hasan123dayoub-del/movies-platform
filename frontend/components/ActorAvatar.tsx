@@ -14,6 +14,7 @@ const colors = [
 ];
 
 const sizes = {
+  sm: { box: "h-10 w-10 text-sm", pixels: "40px" },
   md: { box: "h-14 w-14 text-lg", pixels: "56px" },
   lg: { box: "h-28 w-28 text-4xl sm:h-36 sm:w-36", pixels: "144px" },
 };

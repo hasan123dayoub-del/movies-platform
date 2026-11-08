@@ -8,11 +8,19 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  /* Latin letters from Geist; Arabic letters fall through to IBM Plex Sans Arabic */
+  --font-sans: var(--font-geist-sans), var(--font-arabic), sans-serif;
   --font-mono: var(--font-geist-mono);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
+}
+
+/* Arabic and English mix on the same pages (titles, names, roles, descriptions).
+   "plaintext" lets each line pick its own direction from its first letter, so an
+   Arabic title reads right to left and its punctuation lands in the right place */
+h1, h2, h3, p, li, td, dd, dt, option {
+  unicode-bidi: plaintext;
 }

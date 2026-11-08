@@ -26,9 +26,11 @@ export default function MovieCard({ movie, subtitle }: MovieCardProps) {
         </span>
       </div>
 
-      <div className="p-4">
+      {/* dir="auto": an Arabic movie lays out right to left, an English one left to right */}
+      <div className="p-4" dir="auto">
         <span className="text-xs font-semibold uppercase tracking-wider text-amber-400">
           {movie.type}
+          {movie.releaseYear && <span className="text-zinc-500"> · {movie.releaseYear}</span>}
         </span>
         <h3 className="mt-1 font-semibold leading-snug transition group-hover:text-amber-400">
           {movie.title}

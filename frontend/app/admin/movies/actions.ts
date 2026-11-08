@@ -1,25 +1,27 @@
 "use server";
 
-import { refresh } from "next/cache";
+import { updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { createMovie, updateMovie, deleteMovie } from "@/lib/api";
-import type { FieldErrors, MovieInput } from "@/lib/types";
+import { CATALOG_TAG } from "@/lib/api/cache";
+import { requireAdmin } from "@/lib/auth";
+import { readText, emptyToNull } from "@/lib/form";
+import type { FormState, MovieInput } from "@/lib/types";
 
-// What the form gets back after a failed submit:
-// the errors, and what the user typed so the inputs keep it
-export type MovieFormState = {
-  errors: FieldErrors;
-  values: Record<string, string>;
-};
+// Every action starts with requireAdmin(): a Server Action can be called by anyone,
+// not only from our admin pages. After a change, updateTag() drops the cached
+// movie/actor data so every page shows the new version straight away.
 
-// Reads the form fields; everything in FormData is text, so rating becomes a number
+// Reads the form fields; rating and release year are the ones the API wants as numbers
 function readMovieForm(formData: FormData) {
   const values = {
-    title: String(formData.get("title") ?? ""),
-    type: String(formData.get("type") ?? ""),
-    rating: String(formData.get("rating") ?? ""),
-    director: String(formData.get("director") ?? ""),
-    posterUrl: String(formData.get("posterUrl") ?? "").trim(),
+    title: readText(formData, "title"),
+    type: readText(formData, "type"),
+    rating: readText(formData, "rating"),
+    director: readText(formData, "director"),
+    releaseYear: readText(formData, "releaseYear"),
+    description: readText(formData, "description"),
+    posterUrl: readText(formData, "posterUrl"),
   };
 
   const data = {
@@ -28,17 +30,20 @@ function readMovieForm(formData: FormData) {
     // An empty box is "not sent", so the API answers "required" instead of "0"
     rating: values.rating === "" ? undefined : Number(values.rating),
     director: values.director,
-    // An empty box means "no poster"
-    posterUrl: values.posterUrl === "" ? null : values.posterUrl,
+    releaseYear: values.releaseYear === "" ? undefined : Number(values.releaseYear),
+    // An empty box means "no description"
+    description: emptyToNull(values.description),
+    posterUrl: emptyToNull(values.posterUrl),
   } as MovieInput;
 
   return { values, data };
 }
 
 export async function createMovieAction(
-  _prevState: MovieFormState,
+  _prevState: FormState,
   formData: FormData,
-): Promise<MovieFormState> {
+): Promise<FormState> {
+  await requireAdmin();
   const { values, data } = readMovieForm(formData);
 
   const result = await createMovie(data);
@@ -46,14 +51,18 @@ export async function createMovieAction(
     return { errors: result.errors, values };
   }
 
-  redirect("/admin");
+  updateTag(CATALOG_TAG);
+  // The cast needs the movie's id, so it's added on the edit page:
+  // go straight there, scrolled down to the cast section
+  redirect(`/admin/movies/${result.data.id}/edit#cast`);
 }
 
 export async function updateMovieAction(
   id: number,
-  _prevState: MovieFormState,
+  _prevState: FormState,
   formData: FormData,
-): Promise<MovieFormState> {
+): Promise<FormState> {
+  await requireAdmin();
   const { values, data } = readMovieForm(formData);
 
   const result = await updateMovie(id, data);
@@ -61,10 +70,12 @@ export async function updateMovieAction(
     return { errors: result.errors, values };
   }
 
-  redirect("/admin");
+  updateTag(CATALOG_TAG);
+  redirect("/admin/movies");
 }
 
 export async function deleteMovieAction(id: number) {
+  await requireAdmin();
   await deleteMovie(id);
-  refresh();
+  updateTag(CATALOG_TAG);
 }

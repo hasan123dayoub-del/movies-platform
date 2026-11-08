@@ -1,22 +1,41 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getMovie } from "@/lib/api";
 import { formatDate } from "@/lib/format";
 import Poster from "@/components/Poster";
 import ActorAvatar from "@/components/ActorAvatar";
 
-export default async function MoviePage({ params }: PageProps<"/movies/[id]">) {
-  const { id } = await params;
-
-  // /movies/abc -> 404 without calling the API
+// /movies/abc -> 404 without calling the API
+async function loadMovie(id: string) {
   if (!/^\d+$/.test(id)) {
     notFound();
   }
-
   const movie = await getMovie(Number(id));
   if (!movie) {
     notFound();
   }
+  return movie;
+}
+
+// The browser tab and link previews show the movie's own title and poster.
+// Next remembers the GET during one request, so the page below doesn't fetch twice.
+export async function generateMetadata({
+  params,
+}: PageProps<"/movies/[id]">): Promise<Metadata> {
+  const movie = await loadMovie((await params).id);
+  return {
+    title: movie.title,
+    // The movie's own summary when it has one (shown under the link in search and chat apps)
+    description:
+      movie.description ??
+      `${movie.title}: a ${movie.type.toLowerCase()} directed by ${movie.director}, rated ${movie.rating.toFixed(1)}/10.`,
+    openGraph: movie.posterUrl ? { images: [movie.posterUrl] } : null,
+  };
+}
+
+export default async function MoviePage({ params }: PageProps<"/movies/[id]">) {
+  const movie = await loadMovie((await params).id);
 
   return (
     <>
@@ -32,7 +51,7 @@ export default async function MoviePage({ params }: PageProps<"/movies/[id]">) {
 
         <div className="relative mx-auto max-w-6xl px-6 py-10 sm:py-14">
           <Link
-            href="/"
+            href="/movies"
             className="text-sm text-zinc-400 transition hover:text-white"
           >
             ← All movies
@@ -40,16 +59,27 @@ export default async function MoviePage({ params }: PageProps<"/movies/[id]">) {
 
           <div className="mt-8 grid gap-8 sm:grid-cols-[220px_1fr] md:grid-cols-[260px_1fr] md:gap-12">
             <div className="relative aspect-2/3 w-48 overflow-hidden rounded-2xl shadow-2xl shadow-black ring-1 ring-white/10 sm:w-full">
-              <Poster movie={movie} sizes="260px" priority />
+              <Poster movie={movie} sizes="260px" eager />
             </div>
 
-            <div className="self-end">
+            <div className="self-end" dir="auto">
               <span className="rounded-full border border-amber-400/40 bg-amber-400/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-amber-400">
                 {movie.type}
               </span>
               <h1 className="mt-4 text-4xl font-bold tracking-tight sm:text-5xl">
                 {movie.title}
+                {movie.releaseYear && (
+                  <span dir="ltr" className="mx-3 inline-block text-2xl font-normal text-zinc-400 sm:text-3xl">
+                    ({movie.releaseYear})
+                  </span>
+                )}
               </h1>
+
+              {movie.description && (
+                <p dir="auto" className="mt-4 max-w-2xl text-lg leading-relaxed text-zinc-300">
+                  {movie.description}
+                </p>
+              )}
 
               <div className="mt-6 flex flex-wrap items-center gap-x-8 gap-y-4">
                 <div className="flex items-baseline gap-1">

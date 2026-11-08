@@ -1,11 +1,23 @@
+import { cacheLife, cacheTag } from "next/cache";
 import type { Actor, ActorWithMovies, ActorInput } from "../types";
 import { getJson, getJsonOrNull, sendJson, sendDelete } from "./client";
+import { CATALOG_TAG } from "./cache";
 
-export function getActors() {
-  return getJson<Actor[]>("/actors", "Failed to load actors");
+// Cached reads, like in movies.ts
+
+// Optional search: part of the name, any case
+export async function getActors(search?: string) {
+  "use cache";
+  cacheTag(CATALOG_TAG);
+  cacheLife("minutes");
+  const query = search ? `?search=${encodeURIComponent(search)}` : "";
+  return getJson<Actor[]>(`/actors${query}`, "Failed to load actors");
 }
 
-export function getActor(id: number) {
+export async function getActor(id: number) {
+  "use cache";
+  cacheTag(CATALOG_TAG);
+  cacheLife("minutes");
   return getJsonOrNull<ActorWithMovies>(`/actors/${id}`, "Failed to load actor");
 }
 

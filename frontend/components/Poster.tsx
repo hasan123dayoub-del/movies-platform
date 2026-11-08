@@ -20,11 +20,12 @@ type PosterProps = {
   movie: Pick<Movie, "title" | "type" | "posterUrl">;
   // Tells the browser how wide the image is shown, so it downloads the right size
   sizes: string;
-  priority?: boolean;
+  // For the big poster at the top of a page: load it right away, not lazily
+  eager?: boolean;
 };
 
 // Fills its parent, so the parent decides the size (it must be `relative`)
-export default function Poster({ movie, sizes, priority = false }: PosterProps) {
+export default function Poster({ movie, sizes, eager = false }: PosterProps) {
   if (movie.posterUrl) {
     return (
       <Image
@@ -32,7 +33,8 @@ export default function Poster({ movie, sizes, priority = false }: PosterProps) 
         alt={`${movie.title} poster`}
         fill
         sizes={sizes}
-        priority={priority}
+        loading={eager ? "eager" : "lazy"}
+        fetchPriority={eager ? "high" : "auto"}
         className="object-cover"
       />
     );

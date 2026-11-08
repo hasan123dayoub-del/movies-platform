@@ -1,9 +1,12 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { getMovies } from "@/lib/api";
 import DeleteButton from "@/components/DeleteButton";
 import { deleteMovieAction } from "./actions";
 
-export default async function AdminPage() {
+export const metadata: Metadata = { title: "Movies" };
+
+export default async function AdminMoviesPage() {
   const movies = await getMovies();
 
   return (
@@ -37,6 +40,7 @@ export default async function AdminPage() {
               <tr>
                 <th className="px-4 py-3">Title</th>
                 <th className="px-4 py-3">Type</th>
+                <th className="px-4 py-3">Year</th>
                 <th className="px-4 py-3">Rating</th>
                 <th className="px-4 py-3">Director</th>
                 <th className="px-4 py-3" />
@@ -55,6 +59,7 @@ export default async function AdminPage() {
                     </Link>
                   </td>
                   <td className="px-4 py-3 text-zinc-400">{movie.type}</td>
+                  <td className="px-4 py-3 text-zinc-400">{movie.releaseYear ?? "—"}</td>
                   <td className="px-4 py-3">
                     <span className="text-amber-400">★</span>{" "}
                     {movie.rating.toFixed(1)}

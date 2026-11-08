@@ -1,4 +1,7 @@
 import Link from "next/link";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = { title: "Not found" };
 
 export default function NotFound() {
   return (
@@ -12,7 +15,7 @@ export default function NotFound() {
         href="/"
         className="mt-6 inline-block rounded-lg bg-amber-400 px-5 py-2.5 font-semibold text-zinc-950 transition hover:bg-amber-300"
       >
-        Back to movies
+        Back home
       </Link>
     </div>
   );
