@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/hasan123dayoub-del/movies-platform/actions/workflows/ci.yml/badge.svg)](https://github.com/hasan123dayoub-del/movies-platform/actions/workflows/ci.yml)
 
-**Live demo:** [movies-platform-web.onrender.com](https://movies-platform-web.onrender.com) · **API:** [movies-platform-api.onrender.com](https://movies-platform-api.onrender.com/health) (log in with `admin@movies.dev` / `admin1234` to see the admin area)
+**Live demo:** [movies-platform-web.onrender.com](https://movies-platform-web.onrender.com) · **Interactive API docs:** [movies-platform-api.onrender.com/docs](https://movies-platform-api.onrender.com/docs) (log in with `admin@movies.dev` / `admin1234` to see the admin area)
 
 > Hosted on free plans: after 15 minutes without visitors the site and the API go to sleep, so the first visit can take about a minute to wake them up.
 
@@ -23,7 +23,8 @@ I built this project on my own, end to end (November 2026), to apply what I lear
 - **Members:** 1-to-10 star ratings with optional reviews (one per member per title, averaged per title) and a watchlist, for both movies and series.
 - **Website:** Next.js 16 Server Components and Server Actions; cached pages that refresh on every admin change; live search; Arabic titles shown right to left.
 - **Data:** 35 movies, 16 series, 67 seasons, 1,042 episodes and 78 actors, collected from the Wikipedia and Wikidata APIs.
-- **Quality:** 52 API tests (Vitest + Supertest) against a real PostgreSQL; GitHub Actions also builds the website against a running API on every push.
+- **Docs:** interactive OpenAPI 3.1 docs (Swagger UI) at `/docs`, generated from the Zod validation schemas.
+- **Quality:** 55 API tests (Vitest + Supertest) against a real PostgreSQL; GitHub Actions also builds the website against a running API on every push.
 - **Deployment:** two Docker services on Render plus Neon PostgreSQL; migrations run on start, and the sample data is loaded only into an empty database.
 
 ## Features
@@ -171,6 +172,8 @@ Both apps run on [Render](https://render.com) as Docker services in Frankfurt, d
 - Secrets (`DATABASE_URL`, `JWT_SECRET`) are set in the Render dashboard, never in the repo.
 
 ## API
+
+**Interactive docs:** [`/docs`](https://movies-platform-api.onrender.com/docs) (Swagger UI) lists every endpoint with its rules and examples, and lets you call them from the browser: run `POST /auth/login`, press **Authorize**, paste the token. The OpenAPI 3.1 document behind it is at `/openapi.json`. Its request bodies and query parameters are generated from the same Zod schemas the API validates with ([`src/docs/openapi.ts`](backend/src/docs/openapi.ts)), so the docs can't fall out of date.
 
 A ready Postman collection is in [`backend/postman/`](backend/postman/movies-platform.postman_collection.json) (File → Import).
 
