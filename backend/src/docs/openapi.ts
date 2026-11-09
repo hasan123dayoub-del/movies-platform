@@ -11,7 +11,7 @@ import {
   updateEpisodeSchema,
 } from "../schemas/series.schema.js";
 import { addActorSchema, updateRoleSchema } from "../schemas/cast.schema.js";
-import { registerSchema, loginSchema } from "../schemas/auth.schema.js";
+import { registerSchema, loginSchema, updateProfileSchema, changePasswordSchema } from "../schemas/auth.schema.js";
 import { saveReviewSchema, reviewListQuery } from "../schemas/review.schema.js";
 
 // The OpenAPI document behind /docs (like Scramble in Laravel).
@@ -249,6 +249,7 @@ export function buildOpenApi() {
       { name: "Cast", description: "Who plays whom, in movies and series" },
       { name: "Reviews", description: "Members' 1 to 10 ratings and comments" },
       { name: "Watchlist", description: "Each member's saved titles" },
+      { name: "Admin", description: "Admins only" },
       { name: "System" },
     ],
     paths: {
@@ -289,6 +290,33 @@ export function buildOpenApi() {
           summary: "The logged-in user",
           security: member,
           responses: { 200: ok("The user", ref("User")), 401: errors[401] },
+        },
+        put: {
+          tags: ["Auth"],
+          summary: "Change your name",
+          security: member,
+          requestBody: body(updateProfileSchema, { name: "Sam Smith" }),
+          responses: { 200: ok("The user with the new name", ref("User")), 400: errors[400], 401: errors[401] },
+        },
+      },
+      "/auth/me/password": {
+        put: {
+          tags: ["Auth"],
+          summary: "Change your password (needs the current one)",
+          description:
+            "A wrong current password is a 400 on `currentPassword`. After 10 wrong tries the account waits 15 minutes (429).",
+          security: member,
+          requestBody: body(changePasswordSchema, { currentPassword: "user1234", newPassword: "a-new-secret" }),
+          responses: { ...noContent, 400: errors[400], 401: errors[401], 429: { description: "Too many wrong tries", content: json(ref("Error")) } },
+        },
+      },
+      "/auth/me/reviews": {
+        get: {
+          tags: ["Reviews"],
+          summary: "Everything you reviewed, the latest first",
+          security: member,
+          parameters: query(reviewListQuery),
+          responses: { 200: ok("A page of your reviews, each with its movie or series"), 401: errors[401] },
         },
       },
 
@@ -380,6 +408,16 @@ export function buildOpenApi() {
           security: admin,
           parameters: [id("review")],
           responses: { ...noContent, 401: errors[401], 403: errors[403], 404: errors[404] },
+        },
+      },
+      "/admin/stats": {
+        get: {
+          tags: ["Admin"],
+          summary: "Numbers for the admin dashboard",
+          description:
+            "Counts of everything, the members' top rated and most saved titles, the latest reviews and the newest members.",
+          security: admin,
+          responses: { 200: ok("The dashboard numbers"), 401: errors[401], 403: errors[403] },
         },
       },
       "/watchlist": {

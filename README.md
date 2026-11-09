@@ -17,14 +17,14 @@ A platform for movies, TV series and actors: every movie and series has its cast
 
 I built this project on my own, end to end (November 2026), to apply what I learned in the Bytes4Future full-stack track (Aga Khan Foundation): TypeScript, Express, Prisma, PostgreSQL and Next.js, coming from Laravel.
 
-- **API:** 46 REST endpoints in Express 5 + TypeScript, in layers: routes → Zod validation → controllers → services → Prisma. One error handler turns database errors into clear answers (duplicate → 409, missing → 404).
+- **API:** 50 REST endpoints in Express 5 + TypeScript, in layers: routes → Zod validation → controllers → services → Prisma. One error handler turns database errors into clear answers (duplicate → 409, missing → 404).
 - **Database:** 10 PostgreSQL tables (movies, series, seasons, episodes, actors, two cast tables, users, reviews, watchlist) across 7 migrations, with cascading deletes, unique rules and hand-written `CHECK` rules (a review belongs to exactly one movie or series).
 - **Auth:** bcrypt + JWT kept in an httpOnly cookie, `USER` / `ADMIN` roles, admin-only writes checked by the API, and a login limit that counts only failed attempts per email.
-- **Members:** 1-to-10 star ratings with optional reviews (one per member per title, averaged per title) and a watchlist, for both movies and series.
+- **Members:** 1-to-10 star ratings with optional reviews (one per member per title, averaged per title and sortable), a watchlist, and an account page; an admin overview built with `GROUP BY` queries.
 - **Website:** Next.js 16 Server Components and Server Actions; cached pages that refresh on every admin change; live search; Arabic titles shown right to left.
 - **Data:** 35 movies, 16 series, 67 seasons, 1,042 episodes and 78 actors, collected from the Wikipedia and Wikidata APIs.
 - **Docs:** interactive OpenAPI 3.1 docs (Swagger UI) at `/docs`, generated from the Zod validation schemas.
-- **Quality:** 55 API tests (Vitest + Supertest) against a real PostgreSQL; GitHub Actions also builds the website against a running API on every push.
+- **Quality:** 69 API tests (Vitest + Supertest) against a real PostgreSQL; GitHub Actions also builds the website against a running API on every push.
 - **Deployment:** two Docker services on Render plus Neon PostgreSQL; migrations run on start, and the sample data is loaded only into an empty database.
 
 ## Features
@@ -44,10 +44,13 @@ I built this project on my own, end to end (November 2026), to apply what I lear
 **Members** (any logged-in user)
 - Rate any movie or series from 1 to 10 stars and write an optional review (Arabic reviews read right to left); change or delete it later. One review per member per title
 - Every title shows the members' average next to its own rating, and the reviews, the latest first, 10 per page
+- The cards in every list show the members' average too, and lists can be sorted by it ("Members' favorites"; titles nobody rated go last)
 - A watchlist: save movies and series with one button, see them on `/watchlist`, the latest first
+- `/account`: change your name or your password (the current one is checked, with a limit on wrong tries) and see everything you reviewed
 - Admins can remove anyone's review
 
 **Admin** (`/admin`, admins only)
+- An overview: counts of everything, the members' top rated and most saved titles, the latest reviews and the newest members
 - Add, edit and delete movies and actors, with a live image preview
 - Manage the cast of a movie or a series: add an actor with a role, change the role, remove them
 - Series: add seasons (the next number is suggested), open a season to edit it and add, edit (in place) or delete its episodes
@@ -182,8 +185,12 @@ A ready Postman collection is in [`backend/postman/`](backend/postman/movies-pla
 | POST | `/auth/register` | Create an account → `{ user, token }` |
 | POST | `/auth/login` | Log in → `{ user, token }` (10 failed tries per email, then a 15 minute pause) |
 | GET | `/auth/me` | The logged-in user (needs the token) |
+| PUT | `/auth/me` | Change your name: `{ "name": "Sam" }` |
+| PUT | `/auth/me/password` | Change your password: `{ "currentPassword": "...", "newPassword": "..." }` (204; a wrong current password is a 400 on that field; 10 wrong tries → 429) |
+| GET | `/auth/me/reviews` | Everything you reviewed, the latest first, each with its movie or series. `?page=` |
+| GET | `/admin/stats` | The admin dashboard numbers (admins) |
 | GET | `/health` | API and database are up |
-| GET | `/movies` | List movies. Optional: `?search=` (part of the title, any case), `?type=` (genre), `?sort=title|rating|newest`, `?page=` (see [Pagination](#pagination)) |
+| GET | `/movies` | List movies. Optional: `?search=` (part of the title, any case), `?type=` (genre), `?sort=title|rating|newest|members`, `?page=` (see [Pagination](#pagination)) |
 | GET | `/movies/:id` | One movie with its cast and their roles |
 | POST | `/movies` | Create a movie |
 | PUT | `/movies/:id` | Update a movie (any of its fields) |
@@ -227,7 +234,7 @@ Every `POST`, `PUT` and `DELETE` on movies, series, seasons, episodes, actors an
 }
 ```
 
-Without a search, the database returns only the requested page (`LIMIT`/`OFFSET`) and counts the rest. With a search, every match is ranked first (titles that start with the text lead), then the page is cut out, so the best match is always on page 1. A page past the end returns an empty `data`. The public site shows 12 cards per page, with page links that keep the filters in the URL.
+Without a search, the database returns only the requested page (`LIMIT`/`OFFSET`) and counts the rest. With a search, every match is ranked first (titles that start with the text lead), then the page is cut out, so the best match is always on page 1. A page past the end returns an empty `data`. Every movie and series in a list also carries `membersRating` (the members average, one decimal, or `null`) and `reviewCount`, read with one `GROUP BY` for the whole page. The public site shows 12 cards per page, with page links that keep the filters in the URL.
 
 ### Example bodies
 

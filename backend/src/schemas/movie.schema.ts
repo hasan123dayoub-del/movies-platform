@@ -26,7 +26,8 @@ export const updateMovieSchema = createMovieSchema
   .refine(atLeastOneField, atLeastOneFieldMessage);
 
 // GET /movies?search=dark&type=Drama&sort=newest
-export const MOVIE_SORTS = ["title", "rating", "newest"] as const;
+// "members" = the members' average rating (from their reviews)
+export const MOVIE_SORTS = ["title", "rating", "newest", "members"] as const;
 
 export const movieListQuery = z.object({
   // Part of the title, any case

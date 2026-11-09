@@ -1,6 +1,7 @@
 import { prisma } from "../lib/prisma.js";
 import { HttpError } from "../lib/http-error.js";
 import { listOrPage } from "../lib/paginate.js";
+import { byMembersRating, withMemberRatings, type MemberRating } from "../lib/member-ratings.js";
 import type { Prisma } from "../generated/prisma/client.js";
 import type {
   CreateSeriesInput,
@@ -21,6 +22,7 @@ export async function findSeriesOrFail(id: number) {
 const ORDER_BY = {
   title: [{ title: "asc" }],
   rating: [{ rating: "desc" }, { title: "asc" }],
+  members: [{ title: "asc" }],
   newest: [{ startYear: "desc" }, { title: "asc" }],
 } satisfies Record<SeriesListQuery["sort"], Prisma.SeriesOrderByWithRelationInput[]>;
 
@@ -55,11 +57,14 @@ export async function listSeries(query: SeriesListQuery) {
   };
 
   // The full list, or one page of it with ?page
-  return listOrPage({
+  type Row = Awaited<ReturnType<typeof find>>[number];
+  return listOrPage<Row, Row & MemberRating>({
     query,
     find,
     count: () => prisma.series.count({ where }),
     textOf: (series) => series.title,
+    decorate: (list) => withMemberRatings("series", list),
+    sortInMemory: sort === "members" ? byMembersRating : undefined,
   });
 }
 

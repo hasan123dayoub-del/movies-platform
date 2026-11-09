@@ -27,6 +27,7 @@ export async function listActors(query: ActorListQuery) {
     find: (range) => prisma.actor.findMany({ where, orderBy: { name: "asc" }, ...range }),
     count: () => prisma.actor.count({ where }),
     textOf: (actor) => actor.name,
+    decorate: async (actors) => actors,
   });
 }
 

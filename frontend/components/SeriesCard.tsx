@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Series } from "@/lib/types";
 import { formatYears, plural } from "@/lib/format";
 import Poster from "./Poster";
+import MembersRatingLine from "./MembersRatingLine";
 
 type SeriesCardProps = {
   series: Series & { seasonCount?: number };
@@ -52,6 +53,7 @@ export default function SeriesCard({ series, subtitle }: SeriesCardProps) {
           {subtitle ??
             (series.seasonCount !== undefined ? plural(series.seasonCount, "season") : series.creator)}
         </p>
+        <MembersRatingLine membersRating={series.membersRating} reviewCount={series.reviewCount} />
       </div>
     </Link>
   );

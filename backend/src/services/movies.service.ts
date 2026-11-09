@@ -1,6 +1,7 @@
 import { prisma } from "../lib/prisma.js";
 import { HttpError } from "../lib/http-error.js";
 import { listOrPage } from "../lib/paginate.js";
+import { byMembersRating, withMemberRatings } from "../lib/member-ratings.js";
 import type { Prisma } from "../generated/prisma/client.js";
 import type {
   CreateMovieInput,
@@ -22,6 +23,7 @@ export async function findMovieOrFail(id: number) {
 const ORDER_BY = {
   title: [{ title: "asc" }],
   rating: [{ rating: "desc" }, { title: "asc" }],
+  members: [{ title: "asc" }],
   newest: [{ releaseYear: { sort: "desc", nulls: "last" } }, { title: "asc" }],
 } satisfies Record<MovieListQuery["sort"], Prisma.MovieOrderByWithRelationInput[]>;
 
@@ -44,6 +46,9 @@ export async function listMovies(query: MovieListQuery) {
     find: (range) => prisma.movie.findMany({ where, orderBy: ORDER_BY[sort], ...range }),
     count: () => prisma.movie.count({ where }),
     textOf: (movie) => movie.title,
+    // Each movie also gets its members' average and number of reviews
+    decorate: (movies) => withMemberRatings("movie", movies),
+    sortInMemory: sort === "members" ? byMembersRating : undefined,
   });
 }
 

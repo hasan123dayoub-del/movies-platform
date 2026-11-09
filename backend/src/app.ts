@@ -8,6 +8,7 @@ import moviesRouter from "./routes/movies.routes.js";
 import actorsRouter from "./routes/actors.routes.js";
 import { seriesRouter, seasonsRouter, episodesRouter } from "./routes/series.routes.js";
 import { reviewRoutes, reviewsRouter, watchlistRouter } from "./routes/reviews.routes.js";
+import adminRouter from "./routes/admin.routes.js";
 import { notFound, errorHandler } from "./middleware/errors.js";
 import { prisma } from "./lib/prisma.js";
 
@@ -64,6 +65,7 @@ app.use("/movies", reviewRoutes("movie"));
 app.use("/series", reviewRoutes("series"));
 app.use("/reviews", reviewsRouter);
 app.use("/watchlist", watchlistRouter);
+app.use("/admin", adminRouter);
 
 // These two must stay last: they handle whatever the routes above did not
 app.use(notFound);

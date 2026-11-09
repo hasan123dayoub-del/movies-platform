@@ -56,7 +56,7 @@ export default function CatalogFilters({ path, filters, genres }: CatalogFilters
         defaultValue={filters.type ?? ""}
         onChange={(event) => apply(event.currentTarget.form)}
         aria-label="Filter by type"
-        className={`${inputClass} scheme-dark sm:w-40`}
+        className={`${inputClass} scheme-dark sm:w-48`}
       >
         <option value="">All types</option>
         {genres.map((genre) => (
@@ -71,7 +71,7 @@ export default function CatalogFilters({ path, filters, genres }: CatalogFilters
         defaultValue={filters.sort ?? "title"}
         onChange={(event) => apply(event.currentTarget.form)}
         aria-label={`Sort ${noun}`}
-        className={`${inputClass} scheme-dark sm:w-40`}
+        className={`${inputClass} scheme-dark sm:w-48`}
       >
         {Object.entries(MOVIE_SORTS).map(([value, label]) => (
           <option key={value} value={value}>

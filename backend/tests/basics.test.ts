@@ -41,7 +41,7 @@ describe("basics", () => {
       0,
     );
     // Every endpoint except "/" itself
-    expect(operations).toBe(45);
+    expect(operations).toBe(49);
     // Request bodies come from the Zod schemas: the rating rule is there
     const review = res.body.paths["/movies/{id}/reviews"].put.requestBody.content["application/json"].schema;
     expect(review.properties.rating).toMatchObject({ type: "integer", minimum: 1, maximum: 10 });

@@ -46,7 +46,7 @@ export const updateSeriesSchema = z
   .refine(endsAfterStart, endsAfterStartMessage);
 
 // GET /series?search=bad&type=Drama&sort=newest (newest = most recent first year)
-export const SERIES_SORTS = ["title", "rating", "newest"] as const;
+export const SERIES_SORTS = ["title", "rating", "newest", "members"] as const;
 
 export const seriesListQuery = z.object({
   search: optionalSearch("Search"),

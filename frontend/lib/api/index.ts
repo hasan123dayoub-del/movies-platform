@@ -6,3 +6,5 @@ export * from "./series";
 export * from "./auth";
 export * from "./pages";
 export * from "./reviews";
+export * from "./admin";
+export * from "./account";

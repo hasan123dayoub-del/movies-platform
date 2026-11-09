@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Movie } from "@/lib/types";
 import Poster from "./Poster";
+import MembersRatingLine from "./MembersRatingLine";
 
 type MovieCardProps = {
   movie: Movie;
@@ -38,6 +39,7 @@ export default function MovieCard({ movie, subtitle }: MovieCardProps) {
         <p className="mt-1 text-sm text-zinc-400">
           {subtitle ?? movie.director}
         </p>
+        <MembersRatingLine membersRating={movie.membersRating} reviewCount={movie.reviewCount} />
       </div>
     </Link>
   );

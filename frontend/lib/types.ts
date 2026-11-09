@@ -9,12 +9,16 @@ export type Movie = {
   description: string | null;
   posterUrl: string | null;
   createdAt: string;
-};
+} & ListRating;
 
-// The sort choices for the movies and series lists (the API checks the same three)
+// In lists, each movie and series also comes with the members' average and review count
+export type ListRating = { membersRating?: number | null; reviewCount?: number };
+
+// The sort choices for the movies and series lists (the API checks the same ones)
 export const MOVIE_SORTS = {
   title: "A to Z",
   rating: "Top rated",
+  members: "Members' favorites",
   newest: "Newest",
 } as const;
 export type MovieSort = keyof typeof MOVIE_SORTS;
@@ -38,7 +42,7 @@ export type Series = {
   description: string | null;
   posterUrl: string | null;
   createdAt: string;
-};
+} & ListRating;
 
 // In lists, each series also says how big it is
 export type SeriesListItem = Series & { seasonCount: number; episodeCount: number };
@@ -126,6 +130,8 @@ export type FieldErrors = Record<string, string>;
 export type FormState = {
   errors: FieldErrors;
   values: Record<string, string>;
+  // A short note after a successful save, e.g. "Password changed"
+  message?: string;
 };
 
 // The result of a create or update: the saved item, or the errors to show
@@ -162,3 +168,38 @@ export type Watchlist = {
   movies: (Movie & { addedAt: string })[];
   series: (Series & { addedAt: string })[];
 };
+
+// ---------- Admin dashboard ----------
+
+type TitleRef = { kind: TitleKind; id: number; title: string; posterUrl: string | null };
+
+// GET /admin/stats
+export type AdminStats = {
+  counts: {
+    movies: number;
+    series: number;
+    seasons: number;
+    episodes: number;
+    actors: number;
+    members: number;
+    admins: number;
+    reviews: number;
+    watchlistItems: number;
+  };
+  averageReview: number | null;
+  topRated: (TitleRef & { average: number; reviews: number })[];
+  mostSaved: (TitleRef & { saves: number })[];
+  latestReviews: {
+    id: number;
+    rating: number;
+    comment: string | null;
+    updatedAt: string;
+    user: { id: number; name: string };
+    title: { kind: TitleKind; id: number; title: string };
+  }[];
+  newestMembers: { id: number; name: string; createdAt: string; reviews: number; saved: number }[];
+};
+
+// GET /auth/me/reviews: the member's own reviews, each with the movie OR the series
+type ReviewedTitle = { id: number; title: string; posterUrl: string | null; type: string };
+export type MyReview = Omit<Review, "user"> & { movie: ReviewedTitle | null; series: ReviewedTitle | null };
