@@ -11,6 +11,20 @@ A platform for movies, TV series and actors: every movie and series has its cast
 - **Backend:** Express 5 + TypeScript + Prisma 7 + PostgreSQL 17 (Docker) + Zod 4
 - **Frontend:** Next.js 16 (App Router, Server Components, Server Actions) + React 19 + Tailwind CSS 4
 
+[![The TV series page, with live search, a genre filter and sorting](docs/screenshot.jpg)](https://movies-platform-web.onrender.com/series)
+
+## My contribution
+
+I built this project on my own, end to end (November 2026), to learn TypeScript, Express, Prisma and Next.js coming from Laravel.
+
+- **API:** 32 REST endpoints in Express 5 + TypeScript, in layers: routes → Zod validation → controllers → services → Prisma. One error handler turns database errors into clear answers (duplicate → 409, missing → 404).
+- **Database:** 8 PostgreSQL tables (movies, series, seasons, episodes, actors, two cast tables, users) across 6 migrations, with cascading deletes and unique rules (no two seasons with the same number in a series).
+- **Auth:** bcrypt + JWT kept in an httpOnly cookie, `USER` / `ADMIN` roles, admin-only writes checked by the API, and a login limit that counts only failed attempts per email.
+- **Website:** Next.js 16 Server Components and Server Actions; cached pages that refresh on every admin change; live search; Arabic titles shown right to left.
+- **Data:** 35 movies, 16 series, 67 seasons, 1,042 episodes and 78 actors, collected from the Wikipedia and Wikidata APIs.
+- **Quality:** 33 API tests (Vitest + Supertest) against a real PostgreSQL; GitHub Actions also builds the website against a running API on every push.
+- **Deployment:** two Docker services on Render plus Neon PostgreSQL; migrations run on start, and the sample data is loaded only into an empty database.
+
 ## Features
 
 **Public site**
