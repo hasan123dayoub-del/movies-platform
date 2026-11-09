@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
@@ -5,6 +6,8 @@ import { getSeries } from "@/lib/api";
 import { formatDate, formatYears, plural } from "@/lib/format";
 import Poster from "@/components/Poster";
 import ActorAvatar from "@/components/ActorAvatar";
+import ReviewsSection, { MembersRating } from "@/components/reviews/ReviewsSection";
+import WatchlistButton, { WatchlistButtonSkeleton } from "@/components/reviews/WatchlistButton";
 
 // /series/abc -> 404 without calling the API
 async function loadSeries(id: string) {
@@ -29,8 +32,9 @@ export async function generateMetadata({ params }: PageProps<"/series/[id]">): P
   };
 }
 
-export default async function SeriesDetailPage({ params }: PageProps<"/series/[id]">) {
+export default async function SeriesDetailPage({ params, searchParams }: PageProps<"/series/[id]">) {
   const series = await loadSeries((await params).id);
+  const path = `/series/${series.id}`;
   const episodeCount = series.seasons.reduce((sum, season) => sum + season.episodes.length, 0);
   const running = series.endYear === null;
 
@@ -93,7 +97,18 @@ export default async function SeriesDetailPage({ params }: PageProps<"/series/[i
                 <Stat label="Created by" value={series.creator} />
                 <Stat label="Seasons" value={String(series.seasons.length)} />
                 <Stat label="Episodes" value={String(episodeCount)} />
+                <Suspense fallback={null}>
+                  <div>
+                    <MembersRating kind="series" id={series.id} />
+                  </div>
+                </Suspense>
               </dl>
+
+              <div className="mt-6">
+                <Suspense fallback={<WatchlistButtonSkeleton />}>
+                  <WatchlistButton kind="series" id={series.id} path={path} />
+                </Suspense>
+              </div>
             </div>
           </div>
         </div>
@@ -166,6 +181,8 @@ export default async function SeriesDetailPage({ params }: PageProps<"/series/[i
           </div>
         )}
       </section>
+
+      <ReviewsSection kind="series" id={series.id} path={path} searchParams={searchParams} />
     </>
   );
 }

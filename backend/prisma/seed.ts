@@ -7,6 +7,8 @@ import { movies } from "./data/movies.js";
 import { series } from "./data/series.js";
 import { episodes, type EpisodeData } from "./data/episodes.js";
 import bcrypt from "bcryptjs";
+import { randomUUID } from "node:crypto";
+import { reviewers, movieReviews, seriesReviews, type ReviewerKey } from "./data/reviews.js";
 
 // Public demo logins (also shown in the README), so they must stay harmless
 const demoAccounts = [
@@ -18,10 +20,16 @@ async function main() {
   // On the server (Render) the seed runs at every start: only fill an empty database,
   // never wipe data that is already there. Locally, `npx prisma db seed` still resets.
   if (process.env.SEED_ONLY_IF_EMPTY && (await prisma.movie.count()) > 0) {
-    console.log("Database already has data, skipping the seed.");
-    return;
+    console.log("Database already has data, skipping the catalog.");
+  } else {
+    await seedCatalog();
   }
+  // Added separately, so a database filled before reviews existed gets them too
+  await seedSampleReviews();
+}
 
+// Actors, movies, series (with seasons and episodes) and the demo accounts
+async function seedCatalog() {
   // 1. Clear old data. Deleting a series also deletes its seasons, episodes and cast
   // links, and deleting an actor deletes their cast links (onDelete: Cascade)
   await prisma.series.deleteMany();
@@ -102,6 +110,50 @@ async function main() {
     console.log(`  ${role.padEnd(5)}  ${email} / ${password}`);
   }
 }
+
+// Sample member reviews (prisma/data/reviews.ts), only while there are no reviews at all,
+// so members' real reviews are never touched
+async function seedSampleReviews() {
+  if ((await prisma.review.count()) > 0) {
+    return;
+  }
+
+  // The sample members get a random password nobody knows; the demo user keeps theirs
+  const userIds = {} as Record<ReviewerKey, number>;
+  for (const [key, reviewer] of Object.entries(reviewers) as [ReviewerKey, (typeof reviewers)[ReviewerKey]][]) {
+    const user =
+      key === "user"
+        ? await prisma.user.findUnique({ where: { email: reviewer.email } })
+        : await prisma.user.upsert({
+            where: { email: reviewer.email },
+            update: {},
+            create: { ...reviewer, passwordHash: await bcrypt.hash(randomUUID(), 10) },
+          });
+    if (user) userIds[key] = user.id;
+  }
+
+  // Titles are matched by name; a title or reviewer that isn't there is skipped
+  let count = 0;
+  const add = async (target: { movieId: number } | { seriesId: number }, list: SampleReview[]) => {
+    for (const [reviewer, rating, comment] of list) {
+      const userId = userIds[reviewer];
+      if (!userId) continue;
+      await prisma.review.create({ data: { userId, rating, comment: comment ?? null, ...target } });
+      count++;
+    }
+  };
+  for (const [title, list] of Object.entries(movieReviews)) {
+    const movie = await prisma.movie.findFirst({ where: { title }, select: { id: true } });
+    if (movie) await add({ movieId: movie.id }, list);
+  }
+  for (const [title, list] of Object.entries(seriesReviews)) {
+    const found = await prisma.series.findFirst({ where: { title }, select: { id: true } });
+    if (found) await add({ seriesId: found.id }, list);
+  }
+  console.log(`Added ${count} sample reviews`);
+}
+
+type SampleReview = (typeof movieReviews)[string][number];
 
 main()
   .catch((error) => {

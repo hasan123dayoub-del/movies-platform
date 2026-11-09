@@ -17,12 +17,13 @@ A platform for movies, TV series and actors: every movie and series has its cast
 
 I built this project on my own, end to end (November 2026), to apply what I learned in the Bytes4Future full-stack track (Aga Khan Foundation): TypeScript, Express, Prisma, PostgreSQL and Next.js, coming from Laravel.
 
-- **API:** 32 REST endpoints in Express 5 + TypeScript, in layers: routes → Zod validation → controllers → services → Prisma. One error handler turns database errors into clear answers (duplicate → 409, missing → 404).
-- **Database:** 8 PostgreSQL tables (movies, series, seasons, episodes, actors, two cast tables, users) across 6 migrations, with cascading deletes and unique rules (no two seasons with the same number in a series).
+- **API:** 46 REST endpoints in Express 5 + TypeScript, in layers: routes → Zod validation → controllers → services → Prisma. One error handler turns database errors into clear answers (duplicate → 409, missing → 404).
+- **Database:** 10 PostgreSQL tables (movies, series, seasons, episodes, actors, two cast tables, users, reviews, watchlist) across 7 migrations, with cascading deletes, unique rules and hand-written `CHECK` rules (a review belongs to exactly one movie or series).
 - **Auth:** bcrypt + JWT kept in an httpOnly cookie, `USER` / `ADMIN` roles, admin-only writes checked by the API, and a login limit that counts only failed attempts per email.
+- **Members:** 1-to-10 star ratings with optional reviews (one per member per title, averaged per title) and a watchlist, for both movies and series.
 - **Website:** Next.js 16 Server Components and Server Actions; cached pages that refresh on every admin change; live search; Arabic titles shown right to left.
 - **Data:** 35 movies, 16 series, 67 seasons, 1,042 episodes and 78 actors, collected from the Wikipedia and Wikidata APIs.
-- **Quality:** 40 API tests (Vitest + Supertest) against a real PostgreSQL; GitHub Actions also builds the website against a running API on every push.
+- **Quality:** 52 API tests (Vitest + Supertest) against a real PostgreSQL; GitHub Actions also builds the website against a running API on every push.
 - **Deployment:** two Docker services on Render plus Neon PostgreSQL; migrations run on start, and the sample data is loaded only into an empty database.
 
 ## Features
@@ -38,6 +39,12 @@ I built this project on my own, end to end (November 2026), to apply what I lear
 **Accounts**
 - Register, log in and log out; the session is a JWT in an httpOnly cookie
 - Two roles: `USER` and `ADMIN`. Everyone can browse; only admins can change the catalog
+
+**Members** (any logged-in user)
+- Rate any movie or series from 1 to 10 stars and write an optional review (Arabic reviews read right to left); change or delete it later. One review per member per title
+- Every title shows the members' average next to its own rating, and the reviews, the latest first, 10 per page
+- A watchlist: save movies and series with one button, see them on `/watchlist`, the latest first
+- Admins can remove anyone's review
 
 **Admin** (`/admin`, admins only)
 - Add, edit and delete movies and actors, with a live image preview
@@ -89,6 +96,10 @@ Movie ──< MovieActor >── Actor
 - **Episode:** number (unique in its season), title, air date, runtime, description
 - **SeriesActor:** links an actor to a series with their role
 - **User:** name, unique email, bcrypt password hash, role (`USER` / `ADMIN`)
+- **Review:** a member's rating (1 to 10) and optional comment on a movie **or** a series
+- **WatchlistItem:** a movie **or** a series a member saved
+
+A review and a watchlist item point at exactly one title: `movieId` or `seriesId`, never both and never neither. Prisma can't express that, so the migration adds a `CHECK (num_nonnulls("movieId", "seriesId") = 1)` rule by hand, plus `CHECK (rating BETWEEN 1 AND 10)`. Unique rules on `(userId, movieId)` and `(userId, seriesId)` keep one review per member per title.
 
 ## Run it locally
 
@@ -190,8 +201,16 @@ A ready Postman collection is in [`backend/postman/`](backend/postman/movies-pla
 | POST | `/actors` | Create an actor |
 | PUT | `/actors/:id` | Update an actor (any of their fields) |
 | DELETE | `/actors/:id` | Delete an actor |
+| GET | `/movies/:id/reviews` | The members' average and count, and the reviews (latest first). `?page=` (10 per page) |
+| GET | `/movies/:id/reviews/me` | Your own review (404 if you haven't written one) |
+| PUT | `/movies/:id/reviews` | Write your review, or change it: `{ "rating": 8, "comment": "..." }` (201 the first time, then 200) |
+| DELETE | `/movies/:id/reviews` | Delete your review |
+| … | `/series/:id/reviews[/me]` | The same four for a series |
+| DELETE | `/reviews/:id` | Remove anyone's review (admins) |
+| GET | `/watchlist` | Your watchlist: `{ "movies": [...], "series": [...] }`, the latest first |
+| PUT / DELETE | `/watchlist/movies/:id`, `/watchlist/series/:id` | Save a title or take it off (both are safe to repeat) |
 
-Every `POST`, `PUT` and `DELETE` on movies, series, seasons, episodes, actors and casts needs an admin token: `Authorization: Bearer <token>`.
+Every `POST`, `PUT` and `DELETE` on movies, series, seasons, episodes, actors and casts needs an admin token: `Authorization: Bearer <token>`. Reviews and the watchlist need any logged-in user.
 
 ### Pagination
 
@@ -250,7 +269,7 @@ Sample data sources: posters and photos are linked from Wikimedia; actor birthda
 - [x] Search, filters and sorting
 - [x] Pagination
 - [x] Accounts for everyone (JWT in an httpOnly cookie) and admin-only writes
-- [ ] Ratings, reviews and a watchlist
+- [x] Ratings, reviews and a watchlist
 - [x] Environment validation (Zod) and a health check
 - [x] Dockerfiles for the API and the website
 - [x] Tests (Vitest + Supertest) and GitHub Actions CI

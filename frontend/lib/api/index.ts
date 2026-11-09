@@ -5,3 +5,4 @@ export * from "./cast";
 export * from "./series";
 export * from "./auth";
 export * from "./pages";
+export * from "./reviews";

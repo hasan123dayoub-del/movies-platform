@@ -20,6 +20,8 @@ model Movie {
   posterUrl   String?
   createdAt   DateTime     @default(now())
   actors      MovieActor[]
+  reviews     Review[]
+  watchlist   WatchlistItem[]
 
   // The movies page filters by genre
   @@index([type])
@@ -51,6 +53,8 @@ model Series {
   createdAt   DateTime      @default(now())
   seasons     Season[]
   actors      SeriesActor[]
+  reviews     Review[]
+  watchlist   WatchlistItem[]
 
   @@index([type])
 }
@@ -114,6 +118,47 @@ model User {
   passwordHash String
   role         Role     @default(USER)
   createdAt    DateTime @default(now())
+  reviews      Review[]
+  watchlist    WatchlistItem[]
+}
+
+// A member's rating (1 to 10) and optional comment on a movie OR a series.
+// Exactly one of movieId / seriesId is set (a CHECK rule in the migration makes sure),
+// and each member reviews each title only once (the two unique rules).
+model Review {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  movieId   Int?
+  seriesId  Int?
+  rating    Int
+  comment   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  movie  Movie?  @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  series Series? @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, movieId])
+  @@unique([userId, seriesId])
+  @@index([movieId])
+  @@index([seriesId])
+}
+
+// A movie OR a series a member saved to watch later (same rules as Review)
+model WatchlistItem {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  movieId   Int?
+  seriesId  Int?
+  createdAt DateTime @default(now())
+
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  movie  Movie?  @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  series Series? @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, movieId])
+  @@unique([userId, seriesId])
 }
 
 model MovieActor {

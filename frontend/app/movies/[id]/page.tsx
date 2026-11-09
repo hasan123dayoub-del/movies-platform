@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
@@ -5,6 +6,8 @@ import { getMovie } from "@/lib/api";
 import { formatDate } from "@/lib/format";
 import Poster from "@/components/Poster";
 import ActorAvatar from "@/components/ActorAvatar";
+import ReviewsSection, { MembersRating } from "@/components/reviews/ReviewsSection";
+import WatchlistButton, { WatchlistButtonSkeleton } from "@/components/reviews/WatchlistButton";
 
 // /movies/abc -> 404 without calling the API
 async function loadMovie(id: string) {
@@ -34,8 +37,9 @@ export async function generateMetadata({
   };
 }
 
-export default async function MoviePage({ params }: PageProps<"/movies/[id]">) {
+export default async function MoviePage({ params, searchParams }: PageProps<"/movies/[id]">) {
   const movie = await loadMovie((await params).id);
+  const path = `/movies/${movie.id}`;
 
   return (
     <>
@@ -104,6 +108,15 @@ export default async function MoviePage({ params }: PageProps<"/movies/[id]">) {
                     {movie.actors.length === 1 ? "actor" : "actors"}
                   </p>
                 </div>
+                <Suspense fallback={null}>
+                  <MembersRating kind="movie" id={movie.id} />
+                </Suspense>
+              </div>
+
+              <div className="mt-6">
+                <Suspense fallback={<WatchlistButtonSkeleton />}>
+                  <WatchlistButton kind="movie" id={movie.id} path={path} />
+                </Suspense>
               </div>
             </div>
           </div>
@@ -141,6 +154,8 @@ export default async function MoviePage({ params }: PageProps<"/movies/[id]">) {
           </div>
         )}
       </section>
+
+      <ReviewsSection kind="movie" id={movie.id} path={path} searchParams={searchParams} />
     </>
   );
 }

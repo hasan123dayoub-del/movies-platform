@@ -30,3 +30,13 @@ export function safeNextPath(next: unknown) {
   // "//evil.com" and "/\evil.com" both mean another site to a browser
   return typeof next === "string" && /^\/(?![/\\])/.test(next) ? next : "/";
 }
+
+// For members' Server Actions (reviews, watchlist): any logged-in user.
+// Not logged in: go to the login page, then come back to `nextPath`.
+export async function requireUser(nextPath: string) {
+  const user = await getCurrentUser();
+  if (!user) {
+    redirect(`/login?next=${encodeURIComponent(safeNextPath(nextPath))}`);
+  }
+  return user;
+}

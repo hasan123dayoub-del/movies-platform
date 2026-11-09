@@ -136,3 +136,29 @@ export type SaveResult<T> = { ok: true; data: T } | { ok: false; errors: FieldEr
 // One page of a list, as the API sends it for ?page=2&perPage=12
 export type PageMeta = { page: number; perPage: number; total: number; totalPages: number };
 export type Page<T> = { data: T[]; meta: PageMeta };
+
+// ---------- Reviews and watchlist ----------
+
+// Reviews and watchlist items are about a movie or a series
+export type TitleKind = "movie" | "series";
+
+export type Review = {
+  id: number;
+  rating: number;
+  comment: string | null;
+  createdAt: string;
+  updatedAt: string;
+  // Only the reviewer's name is public, never their email
+  user: { id: number; name: string };
+};
+
+// GET /movies/:id/reviews: the members' average (null before the first rating) and a page
+export type ReviewsPage = Page<Review> & { stats: { average: number | null; count: number } };
+
+export type ReviewInput = { rating: number; comment: string | null };
+
+// GET /watchlist: what one member saved, the latest first
+export type Watchlist = {
+  movies: (Movie & { addedAt: string })[];
+  series: (Series & { addedAt: string })[];
+};

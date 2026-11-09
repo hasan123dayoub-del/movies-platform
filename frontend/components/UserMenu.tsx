@@ -26,6 +26,7 @@ export default async function UserMenu() {
 
   return (
     <div className="flex items-center gap-6">
+      <NavLink href="/watchlist">Watchlist</NavLink>
       {user.role === "ADMIN" && <NavLink href="/admin">Admin</NavLink>}
       <div className="flex items-center gap-3 border-l border-white/10 pl-6">
         <span className="max-w-32 truncate text-zinc-300" title={user.email}>

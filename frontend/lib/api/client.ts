@@ -142,3 +142,23 @@ export async function getJsonWithAuth<T>(path: string, token: string): Promise<T
   }
   return res.json();
 }
+
+// GET with the user's token, where 404 means "there is none" (e.g. no review yet)
+export async function getJsonWithAuthOrNull<T>(path: string, failMessage: string): Promise<T | null> {
+  const res = await fetchWhileWaking(`${API_URL}${path}`, { headers: await authHeader() });
+  if (res.status === 404 || res.status === 401) {
+    return null;
+  }
+  if (!res.ok) {
+    throw new Error(failMessage);
+  }
+  return res.json();
+}
+
+// A PUT or DELETE that sends no body and gets none back (204), e.g. the watchlist buttons
+export async function sendWithoutBody(method: "PUT" | "DELETE", path: string, failMessage: string) {
+  const res = await fetch(`${API_URL}${path}`, { method, headers: await authHeader() });
+  if (!res.ok && !(method === "DELETE" && res.status === 404)) {
+    throw new Error(failMessage);
+  }
+}

@@ -5,6 +5,7 @@ import authRouter from "./routes/auth.routes.js";
 import moviesRouter from "./routes/movies.routes.js";
 import actorsRouter from "./routes/actors.routes.js";
 import { seriesRouter, seasonsRouter, episodesRouter } from "./routes/series.routes.js";
+import { reviewRoutes, reviewsRouter, watchlistRouter } from "./routes/reviews.routes.js";
 import { notFound, errorHandler } from "./middleware/errors.js";
 import { prisma } from "./lib/prisma.js";
 
@@ -30,6 +31,11 @@ app.use("/actors", actorsRouter);
 app.use("/series", seriesRouter);
 app.use("/seasons", seasonsRouter);
 app.use("/episodes", episodesRouter);
+// Members: reviews on every movie and series, and their own watchlist
+app.use("/movies", reviewRoutes("movie"));
+app.use("/series", reviewRoutes("series"));
+app.use("/reviews", reviewsRouter);
+app.use("/watchlist", watchlistRouter);
 
 // These two must stay last: they handle whatever the routes above did not
 app.use(notFound);
