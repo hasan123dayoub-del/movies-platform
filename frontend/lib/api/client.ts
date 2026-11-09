@@ -17,10 +17,42 @@ async function authHeader(): Promise<Record<string, string>> {
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
+// On the free hosting plan the API sleeps after 15 minutes without visitors and takes
+// up to a minute to wake. While it wakes, the request fails, the host answers 502/503,
+// or it sends its own HTML "loading" page instead of JSON. So public reads keep trying
+// for a while before they give up; real answers (200, 404, 4xx) return at once.
+const WAKE_TIMEOUT_MS = 90_000;
+const WAKE_RETRY_DELAY_MS = 4_000;
+
+function isWakingUp(res: Response): boolean {
+  if ([502, 503, 504].includes(res.status)) {
+    return true;
+  }
+  const type = res.headers.get("content-type") ?? "";
+  return res.ok && !type.includes("application/json");
+}
+
+async function fetchWhileWaking(url: string, init?: RequestInit): Promise<Response> {
+  const deadline = Date.now() + WAKE_TIMEOUT_MS;
+  for (;;) {
+    try {
+      const res = await fetch(url, init);
+      if (!isWakingUp(res) || Date.now() > deadline) {
+        return res;
+      }
+    } catch (error) {
+      if (Date.now() > deadline) {
+        throw error;
+      }
+    }
+    await new Promise((resolve) => setTimeout(resolve, WAKE_RETRY_DELAY_MS));
+  }
+}
+
 // GET a list or an item; any failure goes to error.tsx.
 // No cookies here: these are public reads, so the results can be cached.
 export async function getJson<T>(path: string, failMessage: string): Promise<T> {
-  const res = await fetch(`${API_URL}${path}`);
+  const res = await fetchWhileWaking(`${API_URL}${path}`);
   if (!res.ok) {
     throw new Error(failMessage);
   }
@@ -32,7 +64,7 @@ export async function getJsonOrNull<T>(
   path: string,
   failMessage: string,
 ): Promise<T | null> {
-  const res = await fetch(`${API_URL}${path}`);
+  const res = await fetchWhileWaking(`${API_URL}${path}`);
   if (res.status === 404) {
     return null;
   }
@@ -99,7 +131,7 @@ export async function sendDelete(path: string, failMessage: string): Promise<voi
 
 // GET with the user's token: never cached, the answer is about this one visitor
 export async function getJsonWithAuth<T>(path: string, token: string): Promise<T | null> {
-  const res = await fetch(`${API_URL}${path}`, {
+  const res = await fetchWhileWaking(`${API_URL}${path}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   if (res.status === 401) {
