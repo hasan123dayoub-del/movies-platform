@@ -1,6 +1,6 @@
 "use client"; // swaps the picture for the YouTube player on click
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type TrailerProps = {
   youtubeId: string;
@@ -13,6 +13,10 @@ type TrailerProps = {
 // YouTube itself offers every quality from 144p to 1080p in its settings menu.
 export default function Trailer({ youtubeId, title }: TrailerProps) {
   const [playing, setPlaying] = useState(false);
+
+  // Leaving the page puts the picture back, which removes YouTube's player and stops
+  // the trailer (Next keeps the page we left hidden in memory, still playing otherwise)
+  useEffect(() => () => setPlaying(false), []);
 
   return (
     <div className="relative aspect-video overflow-hidden rounded-2xl bg-black ring-1 ring-white/10">

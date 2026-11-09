@@ -74,6 +74,13 @@ export default function VideoPlayer({ src, poster, title }: VideoPlayerProps) {
     };
   }, [src]);
 
+  // Leaving the page stops the film. Next keeps the page we left hidden in memory
+  // (so Back is instant), and without this the sound would go on playing there.
+  useEffect(() => {
+    const video = videoRef.current;
+    return () => video?.pause();
+  }, []);
+
   function choose(index: number) {
     setChosen(index);
     const hls = hlsRef.current;
