@@ -1,6 +1,6 @@
 import { prisma } from "../lib/prisma.js";
 import { HttpError } from "../lib/http-error.js";
-import { rankByMatch } from "../lib/search.js";
+import { listOrPage } from "../lib/paginate.js";
 import type { Prisma } from "../generated/prisma/client.js";
 import type {
   CreateMovieInput,
@@ -25,8 +25,9 @@ const ORDER_BY = {
   newest: [{ releaseYear: { sort: "desc", nulls: "last" } }, { title: "asc" }],
 } satisfies Record<MovieListQuery["sort"], Prisma.MovieOrderByWithRelationInput[]>;
 
-// GET /movies?search=dark&type=Drama&sort=newest (every filter is optional)
-export async function listMovies({ search, type, sort }: MovieListQuery) {
+// GET /movies?search=dark&type=Drama&sort=newest&page=1 (every filter is optional)
+export async function listMovies(query: MovieListQuery) {
+  const { search, type, sort } = query;
   const where: Prisma.MovieWhereInput = {};
   if (search) {
     // ILIKE '%dark%' in SQL: part of the title, any case
@@ -36,9 +37,14 @@ export async function listMovies({ search, type, sort }: MovieListQuery) {
     // "drama" finds "Drama" too
     where.type = { equals: type, mode: "insensitive" };
   }
-  const movies = await prisma.movie.findMany({ where, orderBy: ORDER_BY[sort] });
-  // While searching, titles that start with the text come first
-  return search ? rankByMatch(movies, search, (movie) => movie.title) : movies;
+  // The full list, or one page of it with ?page (while searching, titles that start
+  // with the text come first)
+  return listOrPage({
+    query,
+    find: (range) => prisma.movie.findMany({ where, orderBy: ORDER_BY[sort], ...range }),
+    count: () => prisma.movie.count({ where }),
+    textOf: (movie) => movie.title,
+  });
 }
 
 // The movie with its cast (each actor and their role), actors A to Z

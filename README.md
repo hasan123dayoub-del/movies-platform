@@ -22,14 +22,14 @@ I built this project on my own, end to end (November 2026), to apply what I lear
 - **Auth:** bcrypt + JWT kept in an httpOnly cookie, `USER` / `ADMIN` roles, admin-only writes checked by the API, and a login limit that counts only failed attempts per email.
 - **Website:** Next.js 16 Server Components and Server Actions; cached pages that refresh on every admin change; live search; Arabic titles shown right to left.
 - **Data:** 35 movies, 16 series, 67 seasons, 1,042 episodes and 78 actors, collected from the Wikipedia and Wikidata APIs.
-- **Quality:** 33 API tests (Vitest + Supertest) against a real PostgreSQL; GitHub Actions also builds the website against a running API on every push.
+- **Quality:** 40 API tests (Vitest + Supertest) against a real PostgreSQL; GitHub Actions also builds the website against a running API on every push.
 - **Deployment:** two Docker services on Render plus Neon PostgreSQL; migrations run on start, and the sample data is loaded only into an empty database.
 
 ## Features
 
 **Public site**
 - Home page with the top rated movies and collection stats
-- All movies with **live search** (results follow what you type, titles that start with the text first), a genre filter and sorting (A to Z, top rated, newest); every choice is in the URL, so it can be shared
+- All movies with **live search** (results follow what you type, titles that start with the text first), a genre filter, sorting (A to Z, top rated, newest) and pages of 12; every choice is in the URL, so it can be shared
 - A page per movie with its poster, year, description, director and cast
 - TV series with the same live search, filter and sort; a page per series (years, ongoing/ended, seasons, cast) and per season (its episodes with air date and runtime)
 - All actors with the same live search by name, and a page per actor with their age, filmography and average rating
@@ -169,7 +169,7 @@ A ready Postman collection is in [`backend/postman/`](backend/postman/movies-pla
 | POST | `/auth/login` | Log in → `{ user, token }` (10 failed tries per email, then a 15 minute pause) |
 | GET | `/auth/me` | The logged-in user (needs the token) |
 | GET | `/health` | API and database are up |
-| GET | `/movies` | List movies. Optional: `?search=` (part of the title, any case), `?type=` (genre), `?sort=title|rating|newest` |
+| GET | `/movies` | List movies. Optional: `?search=` (part of the title, any case), `?type=` (genre), `?sort=title|rating|newest`, `?page=` (see [Pagination](#pagination)) |
 | GET | `/movies/:id` | One movie with its cast and their roles |
 | POST | `/movies` | Create a movie |
 | PUT | `/movies/:id` | Update a movie (any of its fields) |
@@ -177,7 +177,7 @@ A ready Postman collection is in [`backend/postman/`](backend/postman/movies-pla
 | POST | `/movies/:id/actors` | Add an actor to a movie with a role |
 | PUT | `/movies/:id/actors/:actorId` | Change the actor's role in the movie |
 | DELETE | `/movies/:id/actors/:actorId` | Remove the actor from the movie |
-| GET | `/series` | List series, each with its number of seasons and episodes. Same `?search=`, `?type=`, `?sort=` as movies |
+| GET | `/series` | List series, each with its number of seasons and episodes. Same `?search=`, `?type=`, `?sort=`, `?page=` as movies |
 | GET | `/series/:id` | One series with its seasons (each with its episodes) and its cast |
 | POST / PUT / DELETE | `/series`, `/series/:id` | Create, update, delete a series (deleting it removes its seasons and episodes) |
 | POST | `/series/:id/seasons` | Add a season |
@@ -185,13 +185,27 @@ A ready Postman collection is in [`backend/postman/`](backend/postman/movies-pla
 | POST | `/seasons/:id/episodes` | Add an episode |
 | PUT / DELETE | `/episodes/:id` | Update or delete an episode |
 | POST / PUT / DELETE | `/series/:id/actors[/:actorId]` | The series' cast, like a movie's |
-| GET | `/actors` | List actors A to Z. Optional: `?search=` (part of the name, any case) |
+| GET | `/actors` | List actors A to Z. Optional: `?search=` (part of the name, any case), `?page=` |
 | GET | `/actors/:id` | One actor with their movies and roles |
 | POST | `/actors` | Create an actor |
 | PUT | `/actors/:id` | Update an actor (any of their fields) |
 | DELETE | `/actors/:id` | Delete an actor |
 
 Every `POST`, `PUT` and `DELETE` on movies, series, seasons, episodes, actors and casts needs an admin token: `Authorization: Bearer <token>`.
+
+### Pagination
+
+`GET /movies`, `/series` and `/actors` return the whole list as an array. Add `?page=` (and optionally `?perPage=`, 1 to 100, default 12) to get one page with its details, like Laravel's `paginate()`:
+
+```jsonc
+// GET /movies?page=2&perPage=12
+{
+  "data": [ /* movies 13 to 24 */ ],
+  "meta": { "page": 2, "perPage": 12, "total": 35, "totalPages": 3 }
+}
+```
+
+Without a search, the database returns only the requested page (`LIMIT`/`OFFSET`) and counts the rest. With a search, every match is ranked first (titles that start with the text lead), then the page is cut out, so the best match is always on page 1. A page past the end returns an empty `data`. The public site shows 12 cards per page, with page links that keep the filters in the URL.
 
 ### Example bodies
 
@@ -234,7 +248,7 @@ Sample data sources: posters and photos are linked from Wikimedia; actor birthda
 ## Roadmap
 
 - [x] Search, filters and sorting
-- [ ] Pagination
+- [x] Pagination
 - [x] Accounts for everyone (JWT in an httpOnly cookie) and admin-only writes
 - [ ] Ratings, reviews and a watchlist
 - [x] Environment validation (Zod) and a health check

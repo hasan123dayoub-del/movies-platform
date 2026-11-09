@@ -1,19 +1,26 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import Image from "next/image";
-import { getActors } from "@/lib/api";
+import { getActorsPage } from "@/lib/api";
 import { getAge } from "@/lib/format";
 import { getToday } from "@/lib/today";
-import { readSearch } from "@/lib/filters";
+import { readPage, readSearch } from "@/lib/filters";
+import { toQuery } from "@/lib/api/query";
+import Pagination from "@/components/Pagination";
+import PastLastPage from "@/components/PastLastPage";
 import ActorAvatar from "@/components/ActorAvatar";
 import SearchBox from "@/components/filters/SearchBox";
 
 export const metadata: Metadata = { title: "Actors" };
 
-// /actors?search=leo
+// /actors?search=leo&page=2
 export default async function ActorsPage({ searchParams }: PageProps<"/actors">) {
-  const search = readSearch(await searchParams);
-  const [actors, today] = await Promise.all([getActors(search), getToday()]);
+  const params = await searchParams;
+  const search = readSearch(params);
+  const [{ data: actors, meta }, today] = await Promise.all([
+    getActorsPage(search, readPage(params)),
+    getToday(),
+  ]);
 
   return (
     <section className="mx-auto max-w-6xl px-6 py-12">
@@ -24,7 +31,7 @@ export default async function ActorsPage({ searchParams }: PageProps<"/actors">)
         <div className="mt-2 flex items-end justify-between">
           <h1 className="text-4xl font-bold tracking-tight">Actors</h1>
           <p className="text-sm text-zinc-500" aria-live="polite">
-            {actors.length} {actors.length === 1 ? "actor" : "actors"}
+            {meta.total} {meta.total === 1 ? "actor" : "actors"}
             {search && " found"}
           </p>
         </div>
@@ -37,7 +44,9 @@ export default async function ActorsPage({ searchParams }: PageProps<"/actors">)
         label="Search actors by name"
       />
 
-      {actors.length === 0 ? (
+      {actors.length === 0 && meta.total > 0 ? (
+        <PastLastPage href={`/actors${toQuery({ search })}`} />
+      ) : actors.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-white/15 p-12 text-center text-zinc-400">
           {search ? (
             <>
@@ -85,6 +94,8 @@ export default async function ActorsPage({ searchParams }: PageProps<"/actors">)
           ))}
         </div>
       )}
+
+      <Pagination meta={meta} path="/actors" query={{ search }} />
     </section>
   );
 }

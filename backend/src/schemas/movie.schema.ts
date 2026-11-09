@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  pageFields,
   requiredText,
   optionalImageUrl,
   optionalSearch,
@@ -35,6 +36,7 @@ export const movieListQuery = z.object({
   sort: z
     .enum(MOVIE_SORTS, { error: `Sort must be one of: ${MOVIE_SORTS.join(", ")}` })
     .default("title"),
+  ...pageFields,
 });
 
 // The validated body types, used by the service (no need to write them twice)

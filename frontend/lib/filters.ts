@@ -26,3 +26,9 @@ export const readSeriesFilters = readMovieFilters;
 export function readSearch(params: SearchParams) {
   return first(params.search);
 }
+
+// ?page=3 -> 3. Anything else (missing, 0, "abc", 2.5) is page 1
+export function readPage(params: SearchParams) {
+  const page = Number(first(params.page));
+  return Number.isInteger(page) && page > 1 ? page : 1;
+}

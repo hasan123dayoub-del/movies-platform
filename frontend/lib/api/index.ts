@@ -4,3 +4,4 @@ export * from "./actors";
 export * from "./cast";
 export * from "./series";
 export * from "./auth";
+export * from "./pages";

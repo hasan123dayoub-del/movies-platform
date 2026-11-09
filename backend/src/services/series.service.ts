@@ -1,6 +1,6 @@
 import { prisma } from "../lib/prisma.js";
 import { HttpError } from "../lib/http-error.js";
-import { rankByMatch } from "../lib/search.js";
+import { listOrPage } from "../lib/paginate.js";
 import type { Prisma } from "../generated/prisma/client.js";
 import type {
   CreateSeriesInput,
@@ -26,7 +26,8 @@ const ORDER_BY = {
 
 // GET /series?search=bad&type=Drama&sort=newest. Each item also says how many
 // seasons and episodes it has, for the cards ("5 seasons · 62 episodes")
-export async function listSeries({ search, type, sort }: SeriesListQuery) {
+export async function listSeries(query: SeriesListQuery) {
+  const { search, type, sort } = query;
   const where: Prisma.SeriesWhereInput = {};
   if (search) {
     where.title = { contains: search, mode: "insensitive" };
@@ -35,21 +36,31 @@ export async function listSeries({ search, type, sort }: SeriesListQuery) {
     where.type = { equals: type, mode: "insensitive" };
   }
 
-  const rows = await prisma.series.findMany({
-    where,
-    orderBy: ORDER_BY[sort],
-    include: {
-      _count: { select: { seasons: true } },
-      seasons: { select: { _count: { select: { episodes: true } } } },
-    },
-  });
+  // Each series with how many seasons and episodes it has
+  const find = async (range?: { skip: number; take: number }) => {
+    const rows = await prisma.series.findMany({
+      where,
+      orderBy: ORDER_BY[sort],
+      include: {
+        _count: { select: { seasons: true } },
+        seasons: { select: { _count: { select: { episodes: true } } } },
+      },
+      ...range,
+    });
+    return rows.map(({ _count, seasons, ...series }) => ({
+      ...series,
+      seasonCount: _count.seasons,
+      episodeCount: seasons.reduce((sum, season) => sum + season._count.episodes, 0),
+    }));
+  };
 
-  const list = rows.map(({ _count, seasons, ...series }) => ({
-    ...series,
-    seasonCount: _count.seasons,
-    episodeCount: seasons.reduce((sum, season) => sum + season._count.episodes, 0),
-  }));
-  return search ? rankByMatch(list, search, (series) => series.title) : list;
+  // The full list, or one page of it with ?page
+  return listOrPage({
+    query,
+    find,
+    count: () => prisma.series.count({ where }),
+    textOf: (series) => series.title,
+  });
 }
 
 // The series with everything: seasons (in order) with their episodes, and the cast

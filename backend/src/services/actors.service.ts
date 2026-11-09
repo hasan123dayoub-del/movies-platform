@@ -1,6 +1,6 @@
 import { prisma } from "../lib/prisma.js";
 import { HttpError } from "../lib/http-error.js";
-import { rankByMatch } from "../lib/search.js";
+import { listOrPage } from "../lib/paginate.js";
 import type {
   ActorListQuery,
   CreateActorInput,
@@ -17,13 +17,17 @@ export async function findActorOrFail(id: number) {
 }
 
 // A to Z. GET /actors?search=leo keeps only names containing "leo", any case
-export async function listActors({ search }: ActorListQuery) {
-  const actors = await prisma.actor.findMany({
-    where: search ? { name: { contains: search, mode: "insensitive" } } : {},
-    orderBy: { name: "asc" },
+export async function listActors(query: ActorListQuery) {
+  const { search } = query;
+  const where = search ? { name: { contains: search, mode: "insensitive" as const } } : {};
+  // The full list, or one page of it with ?page. While searching, names that start
+  // with the text come first ("le" -> Leonardo before Ralph)
+  return listOrPage({
+    query,
+    find: (range) => prisma.actor.findMany({ where, orderBy: { name: "asc" }, ...range }),
+    count: () => prisma.actor.count({ where }),
+    textOf: (actor) => actor.name,
   });
-  // While searching, names that start with the text come first ("le" -> Leonardo before Ralph)
-  return search ? rankByMatch(actors, search, (actor) => actor.name) : actors;
 }
 
 // The actor with their movies and series (and the role in each), best rated first

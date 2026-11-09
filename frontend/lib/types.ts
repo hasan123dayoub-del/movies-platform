@@ -130,3 +130,9 @@ export type FormState = {
 
 // The result of a create or update: the saved item, or the errors to show
 export type SaveResult<T> = { ok: true; data: T } | { ok: false; errors: FieldErrors };
+
+// ---------- Pagination ----------
+
+// One page of a list, as the API sends it for ?page=2&perPage=12
+export type PageMeta = { page: number; perPage: number; total: number; totalPages: number };
+export type Page<T> = { data: T[]; meta: PageMeta };

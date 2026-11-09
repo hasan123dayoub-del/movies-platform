@@ -1,20 +1,22 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { getSeriesGenres, getSeriesList } from "@/lib/api";
-import { readSeriesFilters } from "@/lib/filters";
+import { getSeriesGenres, getSeriesPage } from "@/lib/api";
+import { toQuery } from "@/lib/api/query";
+import { readPage, readSeriesFilters } from "@/lib/filters";
 import type { SeriesFilters } from "@/lib/types";
 import SeriesCard from "@/components/SeriesCard";
 import CatalogFilters from "@/components/filters/CatalogFilters";
+import Pagination from "@/components/Pagination";
+import PastLastPage from "@/components/PastLastPage";
 
 export const metadata: Metadata = { title: "TV Series" };
 
-// /series?search=bad&type=Drama&sort=newest (same live search as /movies)
+// /series?search=bad&type=Drama&sort=newest&page=2 (same live search as /movies)
 export default async function SeriesPage({ searchParams }: PageProps<"/series">) {
-  const [filters, genres] = await Promise.all([
-    searchParams.then(readSeriesFilters),
-    getSeriesGenres(),
-  ]);
+  const [params, genres] = await Promise.all([searchParams, getSeriesGenres()]);
+  const filters = readSeriesFilters(params);
+  const page = readPage(params);
 
   return (
     <section className="mx-auto max-w-6xl px-6 py-12">
@@ -28,15 +30,22 @@ export default async function SeriesPage({ searchParams }: PageProps<"/series">)
       <CatalogFilters path="/series" filters={filters} genres={genres} />
 
       <Suspense fallback={<GridSkeleton />}>
-        <SeriesResults filters={filters} />
+        <SeriesResults filters={filters} page={page} />
       </Suspense>
     </section>
   );
 }
 
-async function SeriesResults({ filters }: { filters: SeriesFilters }) {
-  const list = await getSeriesList(filters);
+async function SeriesResults({ filters, page }: { filters: SeriesFilters; page: number }) {
+  const { data: list, meta } = await getSeriesPage(filters, page);
   const isFiltered = Boolean(filters.search || filters.type);
+  // The filters each page link keeps (the default sort stays out of the URL)
+  const query = { search: filters.search, type: filters.type, sort: filters.sort === "title" ? undefined : filters.sort };
+
+  // A page number past the end (an old link, or the list got shorter)
+  if (list.length === 0 && meta.total > 0) {
+    return <PastLastPage href={`/series${toQuery(query)}`} />;
+  }
 
   if (list.length === 0) {
     return (
@@ -60,13 +69,14 @@ async function SeriesResults({ filters }: { filters: SeriesFilters }) {
   return (
     <>
       <p className="mb-4 text-sm text-zinc-500" aria-live="polite">
-        {list.length} series{isFiltered && " found"}
+        {meta.total} series{isFiltered && " found"}
       </p>
       <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4">
         {list.map((series) => (
           <SeriesCard key={series.id} series={series} />
         ))}
       </div>
+      <Pagination meta={meta} path="/series" query={query} />
     </>
   );
 }

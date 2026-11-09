@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  pageFields,
   requiredText,
   optionalImageUrl,
   optionalSearch,
@@ -53,6 +54,7 @@ export const seriesListQuery = z.object({
   sort: z
     .enum(SERIES_SORTS, { error: `Sort must be one of: ${SERIES_SORTS.join(", ")}` })
     .default("title"),
+  ...pageFields,
 });
 
 // ---------- Seasons ----------

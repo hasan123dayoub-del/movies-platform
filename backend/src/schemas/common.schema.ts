@@ -106,3 +106,19 @@ export const castParams = z.object({
   id: idParam("Movie ID"),
   actorId: idParam("Actor ID"),
 });
+
+// ?page=2&perPage=12 on the list endpoints. Without page, the full list comes back.
+// Query values arrive as text, so "2" is turned into the number 2 first.
+export const pageFields = {
+  page: z.coerce
+    .number({ error: "Page must be a number" })
+    .int("Page must be a whole number")
+    .min(1, "Page must be 1 or more")
+    .optional(),
+  perPage: z.coerce
+    .number({ error: "perPage must be a number" })
+    .int("perPage must be a whole number")
+    .min(1, "perPage must be 1 or more")
+    .max(100, "perPage must be at most 100")
+    .default(12),
+};

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  pageFields,
   requiredText,
   optionalImageUrl,
   atLeastOneField,
@@ -37,5 +38,6 @@ export type UpdateActorInput = Partial<CreateActorInput>;
 export const actorListQuery = z.object({
   // Part of the name, any case
   search: optionalSearch("Search"),
+  ...pageFields,
 });
 export type ActorListQuery = z.infer<typeof actorListQuery>;
