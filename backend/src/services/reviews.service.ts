@@ -91,3 +91,22 @@ export async function deleteMyReview(title: Title, userId: number) {
 export async function deleteReview(id: number) {
   await prisma.review.delete({ where: { id } });
 }
+
+// GET /auth/me/reviews: everything the member reviewed, the latest first, with each title
+export async function listMyReviews(userId: number, { page, perPage }: ReviewListQuery) {
+  const where = { userId };
+  const [total, data] = await Promise.all([
+    prisma.review.count({ where }),
+    prisma.review.findMany({
+      where,
+      include: {
+        movie: { select: { id: true, title: true, posterUrl: true, type: true } },
+        series: { select: { id: true, title: true, posterUrl: true, type: true } },
+      },
+      orderBy: [{ updatedAt: "desc" }, { id: "desc" }],
+      skip: (page - 1) * perPage,
+      take: perPage,
+    }),
+  ]);
+  return { data, meta: { page, perPage, total, totalPages: Math.max(1, Math.ceil(total / perPage)) } };
+}

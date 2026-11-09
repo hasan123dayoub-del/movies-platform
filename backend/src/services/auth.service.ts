@@ -2,7 +2,12 @@ import bcrypt from "bcryptjs";
 import { prisma } from "../lib/prisma.js";
 import { HttpError } from "../lib/http-error.js";
 import { signToken } from "../lib/token.js";
-import type { LoginInput, RegisterInput } from "../schemas/auth.schema.js";
+import type {
+  ChangePasswordInput,
+  LoginInput,
+  RegisterInput,
+  UpdateProfileInput,
+} from "../schemas/auth.schema.js";
 
 // The fields that are safe to send back: never the password hash
 export const publicUserFields = {
@@ -50,4 +55,25 @@ export async function login({ email, password }: LoginInput) {
 
 export function findUserById(id: number) {
   return prisma.user.findUnique({ where: { id }, select: publicUserFields });
+}
+
+// PUT /auth/me: change the name
+export function updateProfile(userId: number, { name }: UpdateProfileInput) {
+  return prisma.user.update({ where: { id: userId }, data: { name }, select: publicUserFields });
+}
+
+// PUT /auth/me/password: only with the right current password.
+// A wrong one is a 400 on that field (the form shows it under the box), and counts
+// as a failed try for the limiter.
+export async function changePassword(userId: number, { currentPassword, newPassword }: ChangePasswordInput) {
+  const user = await prisma.user.findUniqueOrThrow({ where: { id: userId }, select: { passwordHash: true } });
+  if (!(await bcrypt.compare(currentPassword, user.passwordHash))) {
+    throw new HttpError(400, "Validation failed", [
+      { field: "currentPassword", message: "Current password is incorrect" },
+    ]);
+  }
+  await prisma.user.update({
+    where: { id: userId },
+    data: { passwordHash: await bcrypt.hash(newPassword, HASH_ROUNDS) },
+  });
 }

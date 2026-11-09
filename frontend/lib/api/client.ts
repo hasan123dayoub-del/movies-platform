@@ -114,7 +114,8 @@ export async function sendJson<T>(
   if (!res.ok) {
     throw new Error(failMessage);
   }
-  return { ok: true, data: await res.json() };
+  // 204 No Content (e.g. a changed password) has no body to read
+  return { ok: true, data: res.status === 204 ? (undefined as T) : await res.json() };
 }
 
 // A 404 counts as success: the thing is gone, which is what was asked

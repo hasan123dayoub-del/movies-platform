@@ -31,7 +31,7 @@ export function errorHandler(err: unknown, req: Request, res: Response, next: Ne
 
   // Expected errors from the services (404, 409...)
   if (err instanceof HttpError) {
-    res.status(err.status).json({ message: err.message });
+    res.status(err.status).json(err.errors ? { message: err.message, errors: err.errors } : { message: err.message });
     return;
   }
 

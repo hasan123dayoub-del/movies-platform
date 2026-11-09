@@ -4,19 +4,21 @@ import { useState } from "react";
 import { inputClass } from "@/components/form/Field";
 
 type PasswordInputProps = {
+  // The form field name: "password" unless the form has more than one password box
+  name?: string;
   autoComplete: "new-password" | "current-password";
   placeholder?: string | undefined;
   invalid: boolean;
 };
 
 // A password box with an eye button that shows or hides what was typed
-export default function PasswordInput({ autoComplete, placeholder, invalid }: PasswordInputProps) {
+export default function PasswordInput({ name = "password", autoComplete, placeholder, invalid }: PasswordInputProps) {
   const [visible, setVisible] = useState(false);
 
   return (
     <div className="relative">
       <input
-        name="password"
+        name={name}
         type={visible ? "text" : "password"}
         autoComplete={autoComplete}
         placeholder={placeholder}

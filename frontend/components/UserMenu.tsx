@@ -29,9 +29,10 @@ export default async function UserMenu() {
       <NavLink href="/watchlist">Watchlist</NavLink>
       {user.role === "ADMIN" && <NavLink href="/admin">Admin</NavLink>}
       <div className="flex items-center gap-3 border-l border-white/10 pl-6">
-        <span className="max-w-32 truncate text-zinc-300" title={user.email}>
+        {/* The name opens the account page */}
+        <NavLink href="/account" className="max-w-32 truncate">
           {user.name}
-        </span>
+        </NavLink>
         {/* A form, not a link: logging out changes data, so it must not be a GET */}
         <form action={logoutAction}>
           <button
