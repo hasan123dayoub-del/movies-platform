@@ -9,7 +9,7 @@ import { CATALOG_TAG } from "./cache";
 export async function getActors(search?: string) {
   "use cache";
   cacheTag(CATALOG_TAG);
-  cacheLife("minutes");
+  cacheLife("catalog");
   const query = search ? `?search=${encodeURIComponent(search)}` : "";
   return getJson<Actor[]>(`/actors${query}`, "Failed to load actors");
 }
@@ -17,7 +17,7 @@ export async function getActors(search?: string) {
 export async function getActor(id: number) {
   "use cache";
   cacheTag(CATALOG_TAG);
-  cacheLife("minutes");
+  cacheLife("catalog");
   return getJsonOrNull<ActorWithMovies>(`/actors/${id}`, "Failed to load actor");
 }
 

@@ -12,7 +12,7 @@ import { toQuery } from "./query";
 export async function getMovies(filters: MovieFilters = {}) {
   "use cache";
   cacheTag(CATALOG_TAG);
-  cacheLife("minutes");
+  cacheLife("catalog");
   return getJson<Movie[]>(`/movies${toQuery(filters)}`, "Failed to load movies");
 }
 
@@ -26,7 +26,7 @@ export async function getGenres() {
 export async function getMovie(id: number) {
   "use cache";
   cacheTag(CATALOG_TAG);
-  cacheLife("minutes");
+  cacheLife("catalog");
   return getJsonOrNull<MovieWithActors>(`/movies/${id}`, "Failed to load movie");
 }
 

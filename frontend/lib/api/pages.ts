@@ -11,7 +11,7 @@ export const PER_PAGE = 12;
 export async function getMoviesPage(filters: MovieFilters, page: number) {
   "use cache";
   cacheTag(CATALOG_TAG);
-  cacheLife("minutes");
+  cacheLife("catalog");
   const query = toQuery({ ...filters, page: String(page), perPage: String(PER_PAGE) });
   return getJson<Page<Movie>>(`/movies${query}`, "Failed to load movies");
 }
@@ -19,7 +19,7 @@ export async function getMoviesPage(filters: MovieFilters, page: number) {
 export async function getSeriesPage(filters: SeriesFilters, page: number) {
   "use cache";
   cacheTag(CATALOG_TAG);
-  cacheLife("minutes");
+  cacheLife("catalog");
   const query = toQuery({ ...filters, page: String(page), perPage: String(PER_PAGE) });
   return getJson<Page<SeriesListItem>>(`/series${query}`, "Failed to load series");
 }
@@ -27,7 +27,7 @@ export async function getSeriesPage(filters: SeriesFilters, page: number) {
 export async function getActorsPage(search: string | undefined, page: number) {
   "use cache";
   cacheTag(CATALOG_TAG);
-  cacheLife("minutes");
+  cacheLife("catalog");
   const query = toQuery({ search, page: String(page), perPage: String(PER_PAGE) });
   return getJson<Page<Actor>>(`/actors${query}`, "Failed to load actors");
 }

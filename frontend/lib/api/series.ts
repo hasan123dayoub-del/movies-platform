@@ -21,7 +21,7 @@ import { toQuery } from "./query";
 export async function getSeriesList(filters: SeriesFilters = {}) {
   "use cache";
   cacheTag(CATALOG_TAG);
-  cacheLife("minutes");
+  cacheLife("catalog");
   return getJson<SeriesListItem[]>(`/series${toQuery(filters)}`, "Failed to load series");
 }
 
@@ -34,7 +34,7 @@ export async function getSeriesGenres() {
 export async function getSeries(id: number) {
   "use cache";
   cacheTag(CATALOG_TAG);
-  cacheLife("minutes");
+  cacheLife("catalog");
   return getJsonOrNull<SeriesWithDetails>(`/series/${id}`, "Failed to load series");
 }
 

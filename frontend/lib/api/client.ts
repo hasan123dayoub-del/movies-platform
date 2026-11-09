@@ -21,8 +21,12 @@ async function authHeader(): Promise<Record<string, string>> {
 // up to a minute to wake. While it wakes, the request fails, the host answers 502/503,
 // or it sends its own HTML "loading" page instead of JSON. So public reads keep trying
 // for a while before they give up; real answers (200, 404, 4xx) return at once.
-const WAKE_TIMEOUT_MS = 90_000;
+// About 40 seconds in all: Next stops a cached read that takes more than about 50
+// seconds, and after that the waiting page (app/error.tsx) keeps retrying from the
+// browser. Counted in tries, not with the clock: Next refuses a page that reads the
+// time (Date.now()) while rebuilding it, which showed a bare "Internal Server Error".
 const WAKE_RETRY_DELAY_MS = 4_000;
+const WAKE_TRIES = 10;
 
 function isWakingUp(res: Response): boolean {
   if ([502, 503, 504].includes(res.status)) {
@@ -33,15 +37,15 @@ function isWakingUp(res: Response): boolean {
 }
 
 async function fetchWhileWaking(url: string, init?: RequestInit): Promise<Response> {
-  const deadline = Date.now() + WAKE_TIMEOUT_MS;
-  for (;;) {
+  for (let tries = 1; ; tries++) {
+    const last = tries >= WAKE_TRIES;
     try {
       const res = await fetch(url, init);
-      if (!isWakingUp(res) || Date.now() > deadline) {
+      if (!isWakingUp(res) || last) {
         return res;
       }
     } catch (error) {
-      if (Date.now() > deadline) {
+      if (last) {
         throw error;
       }
     }

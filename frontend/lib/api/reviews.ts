@@ -19,7 +19,7 @@ export const reviewsTag = (kind: TitleKind, id: number) => `reviews-${kind}-${id
 export async function getReviews(kind: TitleKind, id: number, page = 1) {
   "use cache";
   cacheTag(reviewsTag(kind, id));
-  cacheLife("minutes");
+  cacheLife("catalog");
   return getJson<ReviewsPage>(`${titlePath(kind, id)}/reviews?page=${page}`, "Failed to load reviews");
 }
 
