@@ -15,7 +15,7 @@ A platform for movies, TV series and actors: every movie and series has its cast
 
 ## My contribution
 
-I built this project on my own, end to end (November 2026), to learn TypeScript, Express, Prisma and Next.js coming from Laravel.
+I built this project on my own, end to end (November 2026), to apply what I learned in the Bytes4Future full-stack track (Aga Khan Foundation): TypeScript, Express, Prisma, PostgreSQL and Next.js, coming from Laravel.
 
 - **API:** 32 REST endpoints in Express 5 + TypeScript, in layers: routes → Zod validation → controllers → services → Prisma. One error handler turns database errors into clear answers (duplicate → 409, missing → 404).
 - **Database:** 8 PostgreSQL tables (movies, series, seasons, episodes, actors, two cast tables, users) across 6 migrations, with cascading deletes and unique rules (no two seasons with the same number in a series).
