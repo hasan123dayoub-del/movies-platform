@@ -17,6 +17,7 @@ export default function AdminLayout({ children }: LayoutProps<"/admin">) {
     <>
       <div className="border-b border-white/10 bg-zinc-900/40">
         <nav className="mx-auto flex max-w-6xl gap-6 px-6 py-3 text-sm font-medium">
+          <NavLink href="/admin/stats">Overview</NavLink>
           <NavLink href="/admin/movies">Movies</NavLink>
           <NavLink href="/admin/series">Series</NavLink>
           <NavLink href="/admin/actors">Actors</NavLink>
