@@ -8,6 +8,7 @@ import Poster from "@/components/Poster";
 import ActorAvatar from "@/components/ActorAvatar";
 import ReviewsSection, { MembersRating } from "@/components/reviews/ReviewsSection";
 import WatchlistButton, { WatchlistButtonSkeleton } from "@/components/reviews/WatchlistButton";
+import Trailer from "@/components/video/Trailer";
 
 // /series/abc -> 404 without calling the API
 async function loadSeries(id: string) {
@@ -104,7 +105,12 @@ export default async function SeriesDetailPage({ params, searchParams }: PagePro
                 </Suspense>
               </dl>
 
-              <div className="mt-6">
+              <div className="mt-6 flex flex-wrap items-center gap-3">
+                {series.trailerYoutubeId && (
+                  <a href="#trailer" className="inline-flex items-center gap-2 rounded-lg bg-amber-400 px-4 py-2 text-sm font-semibold text-zinc-950 transition hover:bg-amber-300">
+                    ▶ Trailer
+                  </a>
+                )}
                 <Suspense fallback={<WatchlistButtonSkeleton />}>
                   <WatchlistButton kind="series" id={series.id} path={path} />
                 </Suspense>
@@ -113,6 +119,13 @@ export default async function SeriesDetailPage({ params, searchParams }: PagePro
           </div>
         </div>
       </section>
+
+      {series.trailerYoutubeId && (
+        <section id="trailer" className="mx-auto max-w-5xl scroll-mt-20 px-6 pt-12">
+          <h2 className="mb-5 text-2xl font-semibold">Trailer</h2>
+          <Trailer youtubeId={series.trailerYoutubeId} title={series.title} />
+        </section>
+      )}
 
       {/* Seasons */}
       <section className="mx-auto max-w-6xl px-6 py-12">

@@ -122,3 +122,42 @@ export const pageFields = {
     .max(100, "perPage must be at most 100")
     .default(12),
 };
+
+// A YouTube video: a link in any common form, or the bare 11-character id.
+// Saved as the id: "https://youtu.be/s9APLXM9Ei8" -> "s9APLXM9Ei8"
+const YOUTUBE_ID = /^[\w-]{11}$/;
+function youtubeId(text: string) {
+  if (YOUTUBE_ID.test(text)) return text;
+  const match = text.match(/(?:youtu\.be\/|[?&]v=|\/embed\/|\/shorts\/|\/live\/)([\w-]{11})(?:[?&#/]|$)/);
+  return match?.[1] ?? text;
+}
+export function optionalYoutubeVideo(label: string) {
+  return z
+    .string({ error: `${label} must be text` })
+    .trim()
+    .transform(youtubeId)
+    .refine((id) => YOUTUBE_ID.test(id), { error: `${label} must be a YouTube link or video id` })
+    .nullable()
+    .exactOptional();
+}
+
+// An HLS playlist to stream a film: https://.../master.m3u8
+export function optionalStreamUrl(label: string) {
+  return z
+    .url({ protocol: /^https$/, error: `${label} must be an https link` })
+    .refine((url) => new URL(url).pathname.endsWith(".m3u8"), {
+      error: `${label} must point to an HLS playlist (.m3u8)`,
+    })
+    .nullable()
+    .exactOptional();
+}
+
+// A length in minutes (a film or an episode); null clears it
+export const runtimeField = () =>
+  z
+    .number({ error: "Runtime must be a number of minutes" })
+    .int("Runtime must be a whole number of minutes")
+    .min(1, "Runtime must be at least 1 minute")
+    .max(600, "Runtime can't be more than 600 minutes")
+    .nullable()
+    .exactOptional();

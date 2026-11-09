@@ -6,8 +6,14 @@ export type Movie = {
   director: string;
   // Older movies may not have these yet
   releaseYear: number | null;
+  // Length in minutes
+  runtime: number | null;
   description: string | null;
   posterUrl: string | null;
+  // The YouTube id of its official trailer
+  trailerYoutubeId: string | null;
+  // An HLS playlist to watch the whole film (only films that are free to share)
+  streamUrl: string | null;
   createdAt: string;
 } & ListRating;
 
@@ -41,6 +47,8 @@ export type Series = {
   endYear: number | null;
   description: string | null;
   posterUrl: string | null;
+  // The YouTube id of its official trailer
+  trailerYoutubeId: string | null;
   createdAt: string;
 } & ListRating;
 

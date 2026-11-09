@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Movie } from "@/lib/types";
+import { formatRuntime } from "@/lib/format";
 import Poster from "./Poster";
 import MembersRatingLine from "./MembersRatingLine";
 
@@ -22,6 +23,11 @@ export default function MovieCard({ movie, subtitle }: MovieCardProps) {
             sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
           />
         </div>
+        {movie.streamUrl && (
+          <span className="absolute left-3 top-3 rounded-full bg-emerald-500/90 px-2.5 py-1 text-xs font-semibold text-zinc-950">
+            ▶ Free
+          </span>
+        )}
         <span className="absolute right-3 top-3 rounded-full bg-black/60 px-2.5 py-1 text-sm font-semibold backdrop-blur">
           <span className="text-amber-400">★</span> {movie.rating.toFixed(1)}
         </span>
@@ -32,6 +38,7 @@ export default function MovieCard({ movie, subtitle }: MovieCardProps) {
         <span className="text-xs font-semibold uppercase tracking-wider text-amber-400">
           {movie.type}
           {movie.releaseYear && <span className="text-zinc-500"> · {movie.releaseYear}</span>}
+          {movie.runtime && <span dir="ltr" className="normal-case text-zinc-500"> · {formatRuntime(movie.runtime)}</span>}
         </span>
         <h3 className="mt-1 font-semibold leading-snug transition group-hover:text-amber-400">
           {movie.title}

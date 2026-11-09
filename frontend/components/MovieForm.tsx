@@ -23,8 +23,11 @@ export default function MovieForm({ action, movie, genres, submitLabel }: MovieF
       rating: movie ? String(movie.rating) : "",
       director: movie?.director ?? "",
       releaseYear: movie?.releaseYear ? String(movie.releaseYear) : "",
+      runtime: movie?.runtime ? String(movie.runtime) : "",
       description: movie?.description ?? "",
       posterUrl: movie?.posterUrl ?? "",
+      trailer: movie?.trailerYoutubeId ? `https://www.youtube.com/watch?v=${movie.trailerYoutubeId}` : "",
+      streamUrl: movie?.streamUrl ?? "",
     },
   };
   const [state, formAction, pending] = useActionState(action, initialState);
@@ -44,7 +47,7 @@ export default function MovieForm({ action, movie, genres, submitLabel }: MovieF
           />
         </Field>
 
-        <div className="grid gap-5 sm:grid-cols-3">
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           <Field label="Type" error={errors.type}>
             <input
               name="type"
@@ -71,6 +74,21 @@ export default function MovieForm({ action, movie, genres, submitLabel }: MovieF
               defaultValue={values.releaseYear}
               placeholder="2010"
               aria-invalid={Boolean(errors.releaseYear)}
+              className={inputClass}
+            />
+          </Field>
+
+          <Field label="Minutes" error={errors.runtime}>
+            <input
+              name="runtime"
+              type="number"
+              step="1"
+              min="1"
+              max="600"
+              inputMode="numeric"
+              defaultValue={values.runtime}
+              placeholder="148"
+              aria-invalid={Boolean(errors.runtime)}
               className={inputClass}
             />
           </Field>
@@ -121,6 +139,28 @@ export default function MovieForm({ action, movie, genres, submitLabel }: MovieF
             aria-invalid={Boolean(errors.posterUrl)}
             className={inputClass}
             onChange={poster.onChange}
+          />
+        </Field>
+
+        <Field label="Trailer (optional)" error={errors.trailerYoutubeId}>
+          <input
+            name="trailer"
+            defaultValue={values.trailer}
+            placeholder="A YouTube link, e.g. https://www.youtube.com/watch?v=..."
+            aria-invalid={Boolean(errors.trailerYoutubeId)}
+            className={inputClass}
+          />
+        </Field>
+
+        {/* Only for films that may be shared for free, e.g. Creative Commons */}
+        <Field label="Stream link (optional, free films only)" error={errors.streamUrl}>
+          <input
+            name="streamUrl"
+            type="url"
+            defaultValue={values.streamUrl}
+            placeholder="https://.../master.m3u8"
+            aria-invalid={Boolean(errors.streamUrl)}
+            className={inputClass}
           />
         </Field>
 

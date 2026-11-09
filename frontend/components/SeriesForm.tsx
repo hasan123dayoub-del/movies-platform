@@ -26,6 +26,7 @@ export default function SeriesForm({ action, series, genres, submitLabel }: Seri
       endYear: series?.endYear ? String(series.endYear) : "",
       description: series?.description ?? "",
       posterUrl: series?.posterUrl ?? "",
+      trailer: series?.trailerYoutubeId ? `https://www.youtube.com/watch?v=${series.trailerYoutubeId}` : "",
     },
   };
   const [state, formAction, pending] = useActionState(action, initialState);
@@ -136,6 +137,16 @@ export default function SeriesForm({ action, series, genres, submitLabel }: Seri
             aria-invalid={Boolean(errors.posterUrl)}
             className={inputClass}
             onChange={poster.onChange}
+          />
+        </Field>
+
+        <Field label="Trailer (optional)" error={errors.trailerYoutubeId}>
+          <input
+            name="trailer"
+            defaultValue={values.trailer}
+            placeholder="A YouTube link, e.g. https://www.youtube.com/watch?v=..."
+            aria-invalid={Boolean(errors.trailerYoutubeId)}
+            className={inputClass}
           />
         </Field>
 

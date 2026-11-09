@@ -3,10 +3,13 @@ import {
   pageFields,
   requiredText,
   optionalImageUrl,
+  optionalStreamUrl,
+  optionalYoutubeVideo,
   optionalSearch,
   optionalText,
   ratingField,
   yearField,
+  runtimeField,
   atLeastOneField,
   atLeastOneFieldMessage,
 } from "./common.schema.js";
@@ -17,8 +20,12 @@ export const createMovieSchema = z.object({
   rating: ratingField(),
   director: requiredText("Director"),
   releaseYear: yearField("Release year"),
+  runtime: runtimeField(),
   description: optionalText("Description"),
   posterUrl: optionalImageUrl("Poster"),
+  trailerYoutubeId: optionalYoutubeVideo("Trailer"),
+  // Only for films that may be shared for free (e.g. Creative Commons)
+  streamUrl: optionalStreamUrl("Stream link"),
 });
 
 export const updateMovieSchema = createMovieSchema

@@ -18,13 +18,14 @@ A platform for movies, TV series and actors: every movie and series has its cast
 I built this project on my own, end to end (November 2026), to apply what I learned in the Bytes4Future full-stack track (Aga Khan Foundation): TypeScript, Express, Prisma, PostgreSQL and Next.js, coming from Laravel.
 
 - **API:** 50 REST endpoints in Express 5 + TypeScript, in layers: routes → Zod validation → controllers → services → Prisma. One error handler turns database errors into clear answers (duplicate → 409, missing → 404).
-- **Database:** 10 PostgreSQL tables (movies, series, seasons, episodes, actors, two cast tables, users, reviews, watchlist) across 7 migrations, with cascading deletes, unique rules and hand-written `CHECK` rules (a review belongs to exactly one movie or series).
+- **Database:** 10 PostgreSQL tables (movies, series, seasons, episodes, actors, two cast tables, users, reviews, watchlist) across 9 migrations, with cascading deletes, unique rules and hand-written `CHECK` rules (a review belongs to exactly one movie or series).
 - **Auth:** bcrypt + JWT kept in an httpOnly cookie, `USER` / `ADMIN` roles, admin-only writes checked by the API, and a login limit that counts only failed attempts per email.
 - **Members:** 1-to-10 star ratings with optional reviews (one per member per title, averaged per title and sortable), a watchlist, and an account page; an admin overview built with `GROUP BY` queries.
 - **Website:** Next.js 16 Server Components and Server Actions; cached pages that refresh on every admin change; live search; Arabic titles shown right to left.
 - **Data:** 35 movies, 16 series, 67 seasons, 1,042 episodes and 78 actors, collected from the Wikipedia and Wikidata APIs.
 - **Docs:** interactive OpenAPI 3.1 docs (Swagger UI) at `/docs`, generated from the Zod validation schemas.
-- **Quality:** 69 API tests (Vitest + Supertest) against a real PostgreSQL; GitHub Actions also builds the website against a running API on every push.
+- **Video:** adaptive streaming (HLS) of two open films in six qualities, 144p to 1080p, encoded with ffmpeg and played with hls.js (Auto or a chosen quality); official trailers for 42 titles, each checked to come from the studio, the network or an official channel.
+- **Quality:** 76 API tests (Vitest + Supertest) against a real PostgreSQL; GitHub Actions also builds the website against a running API on every push.
 - **Deployment:** two Docker services on Render plus Neon PostgreSQL; migrations run on start, and the sample data is loaded only into an empty database.
 
 ## Features
@@ -32,7 +33,8 @@ I built this project on my own, end to end (November 2026), to apply what I lear
 **Public site**
 - Home page with the top rated movies and collection stats
 - All movies with **live search** (results follow what you type, titles that start with the text first), a genre filter, sorting (A to Z, top rated, newest) and pages of 12; every choice is in the URL, so it can be shared
-- A page per movie with its poster, year, description, director and cast
+- A page per movie with its poster, year, length, description, director and cast, and its official trailer
+- **Free to watch:** two open films (Blender Foundation, CC BY 3.0) play in full on their page with a quality menu from 144p to 1080p; "Auto" adapts to the connection while playing, like YouTube
 - TV series with the same live search, filter and sort; a page per series (years, ongoing/ended, seasons, cast) and per season (its episodes with air date and runtime)
 - All actors with the same live search by name, and a page per actor with their age, filmography and average rating
 - Page titles and link previews (Open Graph) per movie and actor
@@ -85,6 +87,23 @@ frontend/
 └── lib/           API client (lib/api/), types, form and date helpers
 ```
 
+## Video
+
+**Trailers.** A movie or series stores only the YouTube id of its official trailer. The admin can paste any YouTube link (`watch?v=`, `youtu.be/`, `/embed/`, `/shorts/`): the API's Zod schema keeps just the 11-character id. The page first shows YouTube's still with a play button, and loads the player from `youtube-nocookie.com` only when it is pressed, so pages stay fast and no YouTube cookies are set before then.
+
+**Free films (adaptive streaming).** Two open films are encoded once with ffmpeg into HLS:
+
+| Quality | Size | Video bitrate |
+|---|---|---|
+| 144p | 256×144 | 110 kbps |
+| 240p | 426×240 | 220 kbps |
+| 360p | 640×360 | 420 kbps |
+| 480p | 854×480 | 700 kbps |
+| 720p | 1280×720 | 1.3 Mbps |
+| 1080p | 1920×1080 | 2.4 Mbps |
+
+The film is cut into 4-second pieces with a keyframe at the start of each one in every quality, so the player can switch quality between two pieces without a jump; one AAC audio track is shared by all six. `master.m3u8` lists the qualities. On the page, [hls.js](https://github.com/video-dev/hls.js) measures how fast each piece downloads and picks the best quality the connection can keep up with (Auto), or plays the one the viewer chooses; Safari and iPhones play HLS natively. The player shows the quality playing and the measured speed.
+
 ## Data model
 
 ```
@@ -92,10 +111,10 @@ Movie ──< MovieActor >── Actor
           (role)
 ```
 
-- **Movie:** title, type, rating, director, release year, description, poster URL
+- **Movie:** title, type, rating, director, release year, runtime (minutes), description, poster URL, trailer (YouTube id), stream (HLS playlist, only for free films)
 - **Actor:** name, birthday, nationality, photo URL
 - **MovieActor:** links an actor to a movie with the role they played (deleting a movie or actor removes its links)
-- **Series:** title, type, rating, creator, first and last year (empty = still running), description, poster URL
+- **Series:** title, type, rating, creator, first and last year (empty = still running), description, poster URL, trailer
 - **Season:** number (unique in its series), optional title, year, description, poster
 - **Episode:** number (unique in its season), title, air date, runtime, description
 - **SeriesActor:** links an actor to a series with their role
@@ -173,6 +192,7 @@ Both apps run on [Render](https://render.com) as Docker services in Frankfurt, d
 - **API** ([`backend/Dockerfile`](backend/Dockerfile)): on every start it applies new migrations, and fills the database with the sample data only if it is empty.
 - **Website** ([`frontend/Dockerfile`](frontend/Dockerfile)): pages are pre-rendered from the API at build time, so the build wakes the free API up first.
 - Secrets (`DATABASE_URL`, `JWT_SECRET`) are set in the Render dashboard, never in the repo.
+- **Videos** live in a separate repo, [movies-platform-media](https://github.com/hasan123dayoub-del/movies-platform-media), served by GitHub Pages, so the code repo stays small.
 
 ## API
 

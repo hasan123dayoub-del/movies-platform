@@ -9,6 +9,8 @@ import { episodes, type EpisodeData } from "./data/episodes.js";
 import bcrypt from "bcryptjs";
 import { randomUUID } from "node:crypto";
 import { reviewers, movieReviews, seriesReviews, type ReviewerKey } from "./data/reviews.js";
+import { freeFilms, movieTrailers, seriesTrailers } from "./data/media.js";
+import { movieRuntimes } from "./data/runtimes.js";
 
 // Public demo logins (also shown in the README), so they must stay harmless
 const demoAccounts = [
@@ -24,7 +26,8 @@ async function main() {
   } else {
     await seedCatalog();
   }
-  // Added separately, so a database filled before reviews existed gets them too
+  // Added separately, so a database filled before these existed gets them too
+  await seedMediaLinks();
   await seedSampleReviews();
 }
 
@@ -108,6 +111,38 @@ async function seedCatalog() {
   );
   for (const { email, password, role } of demoAccounts) {
     console.log(`  ${role.padEnd(5)}  ${email} / ${password}`);
+  }
+}
+
+// The free films and the official trailers (prisma/data/media.ts). Safe to run on every
+// start: it only adds a free film that is missing and fills trailers that are empty,
+// so nothing an admin changed is overwritten.
+async function seedMediaLinks() {
+  let added = 0;
+  for (const film of freeFilms) {
+    const existing = await prisma.movie.findFirst({ where: { title: film.title }, select: { id: true, streamUrl: true } });
+    if (!existing) {
+      await prisma.movie.create({ data: film });
+      added++;
+    } else if (!existing.streamUrl) {
+      await prisma.movie.update({ where: { id: existing.id }, data: { streamUrl: film.streamUrl } });
+    }
+  }
+
+  let trailers = 0;
+  for (const [title, trailerYoutubeId] of Object.entries(movieTrailers)) {
+    trailers += (await prisma.movie.updateMany({ where: { title, trailerYoutubeId: null }, data: { trailerYoutubeId } })).count;
+  }
+  for (const [title, trailerYoutubeId] of Object.entries(seriesTrailers)) {
+    trailers += (await prisma.series.updateMany({ where: { title, trailerYoutubeId: null }, data: { trailerYoutubeId } })).count;
+  }
+  // Runtimes, only where a film has none yet
+  let runtimes = 0;
+  for (const [title, runtime] of Object.entries(movieRuntimes)) {
+    runtimes += (await prisma.movie.updateMany({ where: { title, runtime: null }, data: { runtime } })).count;
+  }
+  if (added || trailers || runtimes) {
+    console.log(`Added ${added} free films, ${trailers} trailers and ${runtimes} runtimes`);
   }
 }
 

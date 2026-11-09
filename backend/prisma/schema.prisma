@@ -8,20 +8,26 @@ datasource db {
 }
 
 model Movie {
-  id          Int          @id @default(autoincrement())
-  title       String
-  type        String
-  rating      Float
-  director    String
+  id               Int             @id @default(autoincrement())
+  title            String
+  type             String
+  rating           Float
+  director         String
   // The year it came out, used for "newest first". Optional so older rows stay valid
-  releaseYear Int?
+  releaseYear      Int?
+  // Length in minutes (like an episode's runtime)
+  runtime          Int?
   // A short summary of the story
-  description String?
-  posterUrl   String?
-  createdAt   DateTime     @default(now())
-  actors      MovieActor[]
-  reviews     Review[]
-  watchlist   WatchlistItem[]
+  description      String?
+  posterUrl        String?
+  // The YouTube id of its official trailer (shown on its page)
+  trailerYoutubeId String?
+  // An HLS playlist (.m3u8) to watch the whole film, only for films free to share
+  streamUrl        String?
+  createdAt        DateTime        @default(now())
+  actors           MovieActor[]
+  reviews          Review[]
+  watchlist        WatchlistItem[]
 
   // The movies page filters by genre
   @@index([type])
@@ -39,22 +45,24 @@ model Actor {
 
 // A TV series: like a movie, but it runs over years and is split into seasons
 model Series {
-  id          Int           @id @default(autoincrement())
-  title       String
-  type        String
-  rating      Float
+  id               Int             @id @default(autoincrement())
+  title            String
+  type             String
+  rating           Float
   // Who created/directed it (the "director" of a series)
-  creator     String
-  startYear   Int
+  creator          String
+  startYear        Int
   // null = still running
-  endYear     Int?
-  description String?
-  posterUrl   String?
-  createdAt   DateTime      @default(now())
-  seasons     Season[]
-  actors      SeriesActor[]
-  reviews     Review[]
-  watchlist   WatchlistItem[]
+  endYear          Int?
+  description      String?
+  posterUrl        String?
+  // The YouTube id of its official trailer
+  trailerYoutubeId String?
+  createdAt        DateTime        @default(now())
+  seasons          Season[]
+  actors           SeriesActor[]
+  reviews          Review[]
+  watchlist        WatchlistItem[]
 
   @@index([type])
 }
@@ -110,14 +118,14 @@ enum Role {
 }
 
 model User {
-  id           Int      @id @default(autoincrement())
+  id           Int             @id @default(autoincrement())
   name         String
   // Always stored lowercase, so "Sam@Mail.com" and "sam@mail.com" are one account
-  email        String   @unique
+  email        String          @unique
   // A bcrypt hash; the password itself is never stored
   passwordHash String
-  role         Role     @default(USER)
-  createdAt    DateTime @default(now())
+  role         Role            @default(USER)
+  createdAt    DateTime        @default(now())
   reviews      Review[]
   watchlist    WatchlistItem[]
 }

@@ -3,6 +3,7 @@ import {
   pageFields,
   requiredText,
   optionalImageUrl,
+  optionalYoutubeVideo,
   optionalSearch,
   optionalText,
   positiveId,
@@ -10,6 +11,7 @@ import {
   yearField,
   atLeastOneField,
   atLeastOneFieldMessage,
+  runtimeField,
 } from "./common.schema.js";
 
 // ---------- Series ----------
@@ -24,6 +26,7 @@ const seriesFields = {
   endYear: yearField("Last year").nullable().exactOptional(),
   description: optionalText("Description"),
   posterUrl: optionalImageUrl("Poster"),
+  trailerYoutubeId: optionalYoutubeVideo("Trailer"),
 };
 
 // A series can't end before it starts
@@ -82,13 +85,7 @@ export const createEpisodeSchema = z.object({
     .transform((value) => new Date(value))
     .nullable()
     .exactOptional(),
-  runtime: z
-    .number({ error: "Runtime must be a number of minutes" })
-    .int("Runtime must be a whole number of minutes")
-    .min(1, "Runtime must be at least 1 minute")
-    .max(600, "Runtime can't be more than 600 minutes")
-    .nullable()
-    .exactOptional(),
+  runtime: runtimeField(),
   description: optionalText("Description"),
 });
 

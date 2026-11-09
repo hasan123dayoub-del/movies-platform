@@ -20,8 +20,11 @@ function readMovieForm(formData: FormData) {
     rating: readText(formData, "rating"),
     director: readText(formData, "director"),
     releaseYear: readText(formData, "releaseYear"),
+    runtime: readText(formData, "runtime"),
     description: readText(formData, "description"),
     posterUrl: readText(formData, "posterUrl"),
+    trailer: readText(formData, "trailer"),
+    streamUrl: readText(formData, "streamUrl"),
   };
 
   const data = {
@@ -31,9 +34,14 @@ function readMovieForm(formData: FormData) {
     rating: values.rating === "" ? undefined : Number(values.rating),
     director: values.director,
     releaseYear: values.releaseYear === "" ? undefined : Number(values.releaseYear),
+    // An empty box clears the runtime
+    runtime: values.runtime === "" ? null : Number(values.runtime),
     // An empty box means "no description"
     description: emptyToNull(values.description),
     posterUrl: emptyToNull(values.posterUrl),
+    // The API turns any YouTube link into the video id
+    trailerYoutubeId: emptyToNull(values.trailer),
+    streamUrl: emptyToNull(values.streamUrl),
   } as MovieInput;
 
   return { values, data };

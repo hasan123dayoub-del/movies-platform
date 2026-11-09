@@ -3,11 +3,13 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getMovie } from "@/lib/api";
-import { formatDate } from "@/lib/format";
+import { formatDate, formatRuntime } from "@/lib/format";
 import Poster from "@/components/Poster";
 import ActorAvatar from "@/components/ActorAvatar";
 import ReviewsSection, { MembersRating } from "@/components/reviews/ReviewsSection";
 import WatchlistButton, { WatchlistButtonSkeleton } from "@/components/reviews/WatchlistButton";
+import VideoPlayer from "@/components/video/VideoPlayer";
+import Trailer from "@/components/video/Trailer";
 
 // /movies/abc -> 404 without calling the API
 async function loadMovie(id: string) {
@@ -99,6 +101,14 @@ export default async function MoviePage({ params, searchParams }: PageProps<"/mo
                   </p>
                   <p className="font-medium">{movie.director}</p>
                 </div>
+                {movie.runtime && (
+                  <div>
+                    <p className="text-xs uppercase tracking-wider text-zinc-500">
+                      Length
+                    </p>
+                    <p dir="ltr" className="font-medium">{formatRuntime(movie.runtime)}</p>
+                  </div>
+                )}
                 <div>
                   <p className="text-xs uppercase tracking-wider text-zinc-500">
                     Cast
@@ -113,7 +123,16 @@ export default async function MoviePage({ params, searchParams }: PageProps<"/mo
                 </Suspense>
               </div>
 
-              <div className="mt-6">
+              <div className="mt-6 flex flex-wrap items-center gap-3">
+                {movie.streamUrl ? (
+                  <a href="#watch" className="inline-flex items-center gap-2 rounded-lg bg-amber-400 px-4 py-2 text-sm font-semibold text-zinc-950 transition hover:bg-amber-300">
+                    ▶ Watch now <span className="font-normal">· free</span>
+                  </a>
+                ) : movie.trailerYoutubeId ? (
+                  <a href="#trailer" className="inline-flex items-center gap-2 rounded-lg bg-amber-400 px-4 py-2 text-sm font-semibold text-zinc-950 transition hover:bg-amber-300">
+                    ▶ Trailer
+                  </a>
+                ) : null}
                 <Suspense fallback={<WatchlistButtonSkeleton />}>
                   <WatchlistButton kind="movie" id={movie.id} path={path} />
                 </Suspense>
@@ -122,6 +141,35 @@ export default async function MoviePage({ params, searchParams }: PageProps<"/mo
           </div>
         </div>
       </section>
+
+      {/* The whole film, for films that are free to share */}
+      {movie.streamUrl && (
+        <section id="watch" className="mx-auto max-w-5xl scroll-mt-20 px-6 pt-12">
+          <h2 className="mb-2 text-2xl font-semibold">
+            Watch the full film
+            {movie.runtime && (
+              <span className="ml-3 text-base font-normal text-zinc-400">{formatRuntime(movie.runtime)}</span>
+            )}
+          </h2>
+          <p className="mb-5 text-sm text-zinc-400">
+            Free to watch: an open film shared under a Creative Commons license. Pick a quality from
+            144p to 1080p, or leave it on Auto.
+          </p>
+          {/* Each film folder has a wide still next to its playlist: .../master.m3u8 -> .../thumbnail.jpg */}
+          <VideoPlayer
+            src={movie.streamUrl}
+            poster={movie.streamUrl.replace(/master\.m3u8$/, "thumbnail.jpg")}
+            title={movie.title}
+          />
+        </section>
+      )}
+
+      {movie.trailerYoutubeId && (
+        <section id="trailer" className="mx-auto max-w-5xl scroll-mt-20 px-6 pt-12">
+          <h2 className="mb-5 text-2xl font-semibold">Trailer</h2>
+          <Trailer youtubeId={movie.trailerYoutubeId} title={movie.title} />
+        </section>
+      )}
 
       {/* Cast */}
       <section className="mx-auto max-w-6xl px-6 py-12">

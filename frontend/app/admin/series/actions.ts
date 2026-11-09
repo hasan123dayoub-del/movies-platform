@@ -47,6 +47,7 @@ function readSeriesForm(formData: FormData) {
     endYear: readText(formData, "endYear"),
     description: readText(formData, "description"),
     posterUrl: readText(formData, "posterUrl"),
+    trailer: readText(formData, "trailer"),
   };
   const data = {
     title: values.title,
@@ -58,6 +59,7 @@ function readSeriesForm(formData: FormData) {
     endYear: toNumberOrNull(values.endYear),
     description: emptyToNull(values.description),
     posterUrl: emptyToNull(values.posterUrl),
+    trailerYoutubeId: emptyToNull(values.trailer),
   } as SeriesInput;
   return { values, data };
 }
