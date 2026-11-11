@@ -13,6 +13,7 @@ import {
 import { addActorSchema, updateRoleSchema } from "../schemas/cast.schema.js";
 import { registerSchema, loginSchema, updateProfileSchema, changePasswordSchema } from "../schemas/auth.schema.js";
 import { saveReviewSchema, reviewListQuery } from "../schemas/review.schema.js";
+import { whereToWatchQuery } from "../schemas/where-to-watch.schema.js";
 
 // The OpenAPI document behind /docs (like Scramble in Laravel).
 // Request bodies and query strings are generated from the same Zod schemas the API
@@ -219,6 +220,28 @@ function itemPaths(
   };
 }
 
+// Where a movie or series can be watched legally, by country
+function whereToWatchPath(base: "movies" | "series", what: string) {
+  return {
+    [`/${base}/{id}/where-to-watch`]: {
+      get: {
+        tags: ["Where to watch"],
+        summary: `Where to watch a ${what}, by country`,
+        description:
+          "Streaming services, free ones, rentals and purchases in one country. Data from JustWatch, through TMDB; the API keeps each answer for 12 hours. Without `country`, or with one that has no offers, it answers for the US (or the first country that has any) and says which one in `country`.",
+        parameters: [id(what), ...query(whereToWatchQuery)],
+        responses: {
+          200: ok("The offers in that country, and every country that has some", ref("WhereToWatch")),
+          400: errors[400],
+          404: errors[404],
+          502: { description: "TMDB didn't answer", content: json(ref("Error")) },
+          503: { description: "The server has no TMDB token", content: json(ref("Error")) },
+        },
+      },
+    },
+  };
+}
+
 export function buildOpenApi() {
   return {
     openapi: "3.1.0",
@@ -249,6 +272,7 @@ export function buildOpenApi() {
       { name: "Cast", description: "Who plays whom, in movies and series" },
       { name: "Reviews", description: "Members' 1 to 10 ratings and comments" },
       { name: "Watchlist", description: "Each member's saved titles" },
+      { name: "Where to watch", description: "Legal streaming, rental and purchase offers by country (JustWatch data via TMDB)" },
       { name: "Admin", description: "Admins only" },
       { name: "System" },
     ],
@@ -339,6 +363,7 @@ export function buildOpenApi() {
       ...itemPaths("movies", "movie", "Movies", "Movie", updateMovieSchema, { rating: 8.8 }, "The movie with its cast and their roles."),
       ...castPaths("movies", "movie"),
       ...reviewPaths("movies", "movie"),
+      ...whereToWatchPath("movies", "movie"),
 
       // ---------- Series ----------
       "/series": {
@@ -381,6 +406,7 @@ export function buildOpenApi() {
       ...itemPaths("episodes", "episode", "Series", "Episode", updateEpisodeSchema, { runtime: 47 }, "", { read: false }),
       ...castPaths("series", "series"),
       ...reviewPaths("series", "series"),
+      ...whereToWatchPath("series", "series"),
 
       // ---------- Actors ----------
       "/actors": {
@@ -520,6 +546,27 @@ export function buildOpenApi() {
             },
             data: arrayOf("Review"),
             meta: ref("PageMeta"),
+          },
+        },
+        Provider: {
+          type: "object",
+          properties: {
+            id: { type: "integer" },
+            name: { type: "string", examples: ["Netflix"] },
+            logo: { type: ["string", "null"], format: "uri" },
+          },
+        },
+        WhereToWatch: {
+          type: "object",
+          properties: {
+            country: { type: "string", examples: ["SA"] },
+            countries: { type: "array", items: { type: "string" } },
+            link: { type: ["string", "null"], format: "uri" },
+            stream: arrayOf("Provider"),
+            free: arrayOf("Provider"),
+            ads: arrayOf("Provider"),
+            rent: arrayOf("Provider"),
+            buy: arrayOf("Provider"),
           },
         },
         Watchlist: {

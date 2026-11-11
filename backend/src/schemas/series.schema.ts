@@ -12,6 +12,7 @@ import {
   atLeastOneField,
   atLeastOneFieldMessage,
   runtimeField,
+  tmdbIdField,
 } from "./common.schema.js";
 
 // ---------- Series ----------
@@ -27,6 +28,7 @@ const seriesFields = {
   description: optionalText("Description"),
   posterUrl: optionalImageUrl("Poster"),
   trailerYoutubeId: optionalYoutubeVideo("Trailer"),
+  tmdbId: tmdbIdField(),
 };
 
 // A series can't end before it starts

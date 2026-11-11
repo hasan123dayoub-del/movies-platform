@@ -1,5 +1,5 @@
 # Render Blueprint: the API as a Docker web service.
-# DATABASE_URL (Neon) and JWT_SECRET are secrets, so they are typed in Render's dashboard.
+# DATABASE_URL (Neon), JWT_SECRET and TMDB_TOKEN are secrets, so they are typed in Render's dashboard.
 services:
   - type: web
     name: movies-platform-api
@@ -14,6 +14,8 @@ services:
         sync: false
       - key: JWT_SECRET
         generateValue: true
+      - key: TMDB_TOKEN
+        sync: false
 
   # The website (Next.js), reading from the API above
   - type: web

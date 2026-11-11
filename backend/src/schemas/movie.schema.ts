@@ -10,6 +10,7 @@ import {
   ratingField,
   yearField,
   runtimeField,
+  tmdbIdField,
   atLeastOneField,
   atLeastOneFieldMessage,
 } from "./common.schema.js";
@@ -26,6 +27,7 @@ export const createMovieSchema = z.object({
   trailerYoutubeId: optionalYoutubeVideo("Trailer"),
   // Only for films that may be shared for free (e.g. Creative Commons)
   streamUrl: optionalStreamUrl("Stream link"),
+  tmdbId: tmdbIdField(),
 });
 
 export const updateMovieSchema = createMovieSchema

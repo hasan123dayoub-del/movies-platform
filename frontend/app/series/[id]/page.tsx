@@ -9,6 +9,7 @@ import ActorAvatar from "@/components/ActorAvatar";
 import ReviewsSection, { MembersRating } from "@/components/reviews/ReviewsSection";
 import WatchlistButton, { WatchlistButtonSkeleton } from "@/components/reviews/WatchlistButton";
 import Trailer from "@/components/video/Trailer";
+import WhereToWatchSection from "@/components/where-to-watch/WhereToWatchSection";
 
 // /series/abc -> 404 without calling the API
 async function loadSeries(id: string) {
@@ -126,6 +127,8 @@ export default async function SeriesDetailPage({ params, searchParams }: PagePro
           <Trailer youtubeId={series.trailerYoutubeId} title={series.title} />
         </section>
       )}
+
+      <WhereToWatchSection kind="series" id={series.id} searchParams={searchParams} />
 
       {/* Seasons */}
       <section className="mx-auto max-w-6xl px-6 py-12">

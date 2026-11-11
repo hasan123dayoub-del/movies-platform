@@ -12,6 +12,8 @@ export type Movie = {
   posterUrl: string | null;
   // The YouTube id of its official trailer
   trailerYoutubeId: string | null;
+  // Its id on TMDB (themoviedb.org), for "where to watch"
+  tmdbId: number | null;
   // An HLS playlist to watch the whole film (only films that are free to share)
   streamUrl: string | null;
   createdAt: string;
@@ -49,6 +51,8 @@ export type Series = {
   posterUrl: string | null;
   // The YouTube id of its official trailer
   trailerYoutubeId: string | null;
+  // Its id on TMDB (themoviedb.org), for "where to watch"
+  tmdbId: number | null;
   createdAt: string;
 } & ListRating;
 
@@ -155,6 +159,21 @@ export type Page<T> = { data: T[]; meta: PageMeta };
 
 // Reviews and watchlist items are about a movie or a series
 export type TitleKind = "movie" | "series";
+
+// Where a title can be watched legally in one country (JustWatch data via TMDB)
+export type Provider = { id: number; name: string; logo: string | null };
+export type WhereToWatch = {
+  country: string;
+  // Every country that has offers for this title
+  countries: string[];
+  // TMDB's page for these offers, which links on to each service
+  link: string | null;
+  stream: Provider[];
+  free: Provider[];
+  ads: Provider[];
+  rent: Provider[];
+  buy: Provider[];
+};
 
 export type Review = {
   id: number;

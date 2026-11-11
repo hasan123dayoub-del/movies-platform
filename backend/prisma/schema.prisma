@@ -24,6 +24,8 @@ model Movie {
   trailerYoutubeId String?
   // An HLS playlist (.m3u8) to watch the whole film, only for films free to share
   streamUrl        String?
+  // Its id on TMDB (themoviedb.org), used for "where to watch"
+  tmdbId           Int?
   createdAt        DateTime        @default(now())
   actors           MovieActor[]
   reviews          Review[]
@@ -58,6 +60,8 @@ model Series {
   posterUrl        String?
   // The YouTube id of its official trailer
   trailerYoutubeId String?
+  // Its id on TMDB (themoviedb.org), used for "where to watch"
+  tmdbId           Int?
   createdAt        DateTime        @default(now())
   seasons          Season[]
   actors           SeriesActor[]

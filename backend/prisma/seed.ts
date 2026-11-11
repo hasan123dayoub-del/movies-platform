@@ -11,6 +11,7 @@ import { randomUUID } from "node:crypto";
 import { reviewers, movieReviews, seriesReviews, type ReviewerKey } from "./data/reviews.js";
 import { freeFilms, movieTrailers, seriesTrailers } from "./data/media.js";
 import { movieRuntimes } from "./data/runtimes.js";
+import { movieTmdbIds, seriesTmdbIds } from "./data/tmdb.js";
 
 // Public demo logins (also shown in the README), so they must stay harmless
 const demoAccounts = [
@@ -141,8 +142,16 @@ async function seedMediaLinks() {
   for (const [title, runtime] of Object.entries(movieRuntimes)) {
     runtimes += (await prisma.movie.updateMany({ where: { title, runtime: null }, data: { runtime } })).count;
   }
-  if (added || trailers || runtimes) {
-    console.log(`Added ${added} free films, ${trailers} trailers and ${runtimes} runtimes`);
+  // TMDB ids (for "where to watch"), only where a title has none yet
+  let tmdbIds = 0;
+  for (const [title, tmdbId] of Object.entries(movieTmdbIds)) {
+    tmdbIds += (await prisma.movie.updateMany({ where: { title, tmdbId: null }, data: { tmdbId } })).count;
+  }
+  for (const [title, tmdbId] of Object.entries(seriesTmdbIds)) {
+    tmdbIds += (await prisma.series.updateMany({ where: { title, tmdbId: null }, data: { tmdbId } })).count;
+  }
+  if (added || trailers || runtimes || tmdbIds) {
+    console.log(`Added ${added} free films, ${trailers} trailers, ${runtimes} runtimes and ${tmdbIds} TMDB ids`);
   }
 }
 

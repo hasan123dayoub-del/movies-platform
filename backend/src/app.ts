@@ -9,6 +9,7 @@ import actorsRouter from "./routes/actors.routes.js";
 import { seriesRouter, seasonsRouter, episodesRouter } from "./routes/series.routes.js";
 import { reviewRoutes, reviewsRouter, watchlistRouter } from "./routes/reviews.routes.js";
 import adminRouter from "./routes/admin.routes.js";
+import { whereToWatchRoutes } from "./routes/where-to-watch.routes.js";
 import { notFound, errorHandler } from "./middleware/errors.js";
 import { prisma } from "./lib/prisma.js";
 
@@ -65,6 +66,9 @@ app.use("/movies", reviewRoutes("movie"));
 app.use("/series", reviewRoutes("series"));
 app.use("/reviews", reviewsRouter);
 app.use("/watchlist", watchlistRouter);
+// Where each title can be watched legally (JustWatch data via TMDB)
+app.use("/movies", whereToWatchRoutes("movie"));
+app.use("/series", whereToWatchRoutes("series"));
 app.use("/admin", adminRouter);
 
 // These two must stay last: they handle whatever the routes above did not

@@ -18,7 +18,7 @@ import {
 } from "@/lib/api";
 import { CATALOG_TAG } from "@/lib/api/cache";
 import { requireAdmin } from "@/lib/auth";
-import { readText, emptyToNull, emptyFormState } from "@/lib/form";
+import { readText, emptyToNull, tmdbIdFrom, emptyFormState } from "@/lib/form";
 import type {
   CastInput,
   EpisodeInput,
@@ -48,6 +48,7 @@ function readSeriesForm(formData: FormData) {
     description: readText(formData, "description"),
     posterUrl: readText(formData, "posterUrl"),
     trailer: readText(formData, "trailer"),
+    tmdb: readText(formData, "tmdb"),
   };
   const data = {
     title: values.title,
@@ -60,6 +61,7 @@ function readSeriesForm(formData: FormData) {
     description: emptyToNull(values.description),
     posterUrl: emptyToNull(values.posterUrl),
     trailerYoutubeId: emptyToNull(values.trailer),
+    tmdbId: tmdbIdFrom(values.tmdb),
   } as SeriesInput;
   return { values, data };
 }

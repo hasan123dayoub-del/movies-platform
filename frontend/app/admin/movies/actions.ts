@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { createMovie, updateMovie, deleteMovie } from "@/lib/api";
 import { CATALOG_TAG } from "@/lib/api/cache";
 import { requireAdmin } from "@/lib/auth";
-import { readText, emptyToNull } from "@/lib/form";
+import { readText, emptyToNull, tmdbIdFrom } from "@/lib/form";
 import type { FormState, MovieInput } from "@/lib/types";
 
 // Every action starts with requireAdmin(): a Server Action can be called by anyone,
@@ -24,6 +24,7 @@ function readMovieForm(formData: FormData) {
     description: readText(formData, "description"),
     posterUrl: readText(formData, "posterUrl"),
     trailer: readText(formData, "trailer"),
+    tmdb: readText(formData, "tmdb"),
     streamUrl: readText(formData, "streamUrl"),
   };
 
@@ -41,6 +42,7 @@ function readMovieForm(formData: FormData) {
     posterUrl: emptyToNull(values.posterUrl),
     // The API turns any YouTube link into the video id
     trailerYoutubeId: emptyToNull(values.trailer),
+    tmdbId: tmdbIdFrom(values.tmdb),
     streamUrl: emptyToNull(values.streamUrl),
   } as MovieInput;
 

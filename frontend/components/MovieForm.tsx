@@ -27,6 +27,7 @@ export default function MovieForm({ action, movie, genres, submitLabel }: MovieF
       description: movie?.description ?? "",
       posterUrl: movie?.posterUrl ?? "",
       trailer: movie?.trailerYoutubeId ? `https://www.youtube.com/watch?v=${movie.trailerYoutubeId}` : "",
+      tmdb: movie?.tmdbId ? String(movie.tmdbId) : "",
       streamUrl: movie?.streamUrl ?? "",
     },
   };
@@ -148,6 +149,16 @@ export default function MovieForm({ action, movie, genres, submitLabel }: MovieF
             defaultValue={values.trailer}
             placeholder="A YouTube link, e.g. https://www.youtube.com/watch?v=..."
             aria-invalid={Boolean(errors.trailerYoutubeId)}
+            className={inputClass}
+          />
+        </Field>
+
+        <Field label="TMDB id or link (optional, for “Where to watch”)" error={errors.tmdbId}>
+          <input
+            name="tmdb"
+            defaultValue={values.tmdb}
+            placeholder="e.g. https://www.themoviedb.org/movie/27205"
+            aria-invalid={Boolean(errors.tmdbId)}
             className={inputClass}
           />
         </Field>

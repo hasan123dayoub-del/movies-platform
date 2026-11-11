@@ -161,3 +161,12 @@ export const runtimeField = () =>
     .max(600, "Runtime can't be more than 600 minutes")
     .nullable()
     .exactOptional();
+
+// The title's id on TMDB (themoviedb.org); null clears it
+export const tmdbIdField = () =>
+  z
+    .number({ error: "TMDB id must be a number" })
+    .int("TMDB id must be a whole number")
+    .positive("TMDB id must be positive")
+    .nullable()
+    .exactOptional();

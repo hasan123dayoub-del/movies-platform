@@ -27,6 +27,7 @@ export default function SeriesForm({ action, series, genres, submitLabel }: Seri
       description: series?.description ?? "",
       posterUrl: series?.posterUrl ?? "",
       trailer: series?.trailerYoutubeId ? `https://www.youtube.com/watch?v=${series.trailerYoutubeId}` : "",
+      tmdb: series?.tmdbId ? String(series.tmdbId) : "",
     },
   };
   const [state, formAction, pending] = useActionState(action, initialState);
@@ -146,6 +147,16 @@ export default function SeriesForm({ action, series, genres, submitLabel }: Seri
             defaultValue={values.trailer}
             placeholder="A YouTube link, e.g. https://www.youtube.com/watch?v=..."
             aria-invalid={Boolean(errors.trailerYoutubeId)}
+            className={inputClass}
+          />
+        </Field>
+
+        <Field label="TMDB id or link (optional, for “Where to watch”)" error={errors.tmdbId}>
+          <input
+            name="tmdb"
+            defaultValue={values.tmdb}
+            placeholder="e.g. https://www.themoviedb.org/tv/1396"
+            aria-invalid={Boolean(errors.tmdbId)}
             className={inputClass}
           />
         </Field>

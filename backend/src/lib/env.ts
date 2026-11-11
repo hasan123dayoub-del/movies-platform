@@ -11,6 +11,12 @@ const envSchema = z.object({
   JWT_SECRET: z
     .string({ error: "JWT_SECRET is missing" })
     .min(32, "JWT_SECRET must be at least 32 characters long"),
+  // TMDB's "API Read Access Token", for "where to watch". Optional: without it the
+  // rest of the API works and that one endpoint answers 503.
+  TMDB_TOKEN: z
+    .string()
+    .optional()
+    .transform((token) => token?.trim() || undefined),
 });
 
 const result = envSchema.safeParse(process.env);

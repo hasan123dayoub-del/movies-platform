@@ -10,6 +10,7 @@ import ReviewsSection, { MembersRating } from "@/components/reviews/ReviewsSecti
 import WatchlistButton, { WatchlistButtonSkeleton } from "@/components/reviews/WatchlistButton";
 import VideoPlayer from "@/components/video/VideoPlayer";
 import Trailer from "@/components/video/Trailer";
+import WhereToWatchSection from "@/components/where-to-watch/WhereToWatchSection";
 
 // /movies/abc -> 404 without calling the API
 async function loadMovie(id: string) {
@@ -170,6 +171,8 @@ export default async function MoviePage({ params, searchParams }: PageProps<"/mo
           <Trailer youtubeId={movie.trailerYoutubeId} title={movie.title} />
         </section>
       )}
+
+      <WhereToWatchSection kind="movie" id={movie.id} searchParams={searchParams} />
 
       {/* Cast */}
       <section className="mx-auto max-w-6xl px-6 py-12">

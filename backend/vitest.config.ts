@@ -11,6 +11,8 @@ export default defineConfig({
         process.env.TEST_DATABASE_URL ?? "postgresql://movies:movies@localhost:5433/movies_test",
       JWT_SECRET: process.env.JWT_SECRET ?? "test-only-secret-that-is-long-enough-123",
       NODE_ENV: "test",
+      // A fake token: the where-to-watch tests replace TMDB with a fixed answer
+      TMDB_TOKEN: "test-tmdb-token",
     },
     // The test files share one database, so run them one after another
     fileParallelism: false,
