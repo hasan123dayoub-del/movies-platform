@@ -34,6 +34,10 @@ export const movieRuntimes: Record<string, number> = {
   "The Wolf of Wall Street": 180,
   "Titanic": 194,
   "الرسالة": 177,
+  // From TMDB's data
+  "الحدود": 98,
+  "الإرهاب والكباب": 115,
+  "الكيت كات": 130,
   // The free films, measured from their own video (10:35 and 2:26)
   "Big Buck Bunny": 11,
   "Caminandes 2: Gran Dillama": 2,
