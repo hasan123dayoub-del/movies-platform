@@ -1,7 +1,7 @@
-import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth";
 import { logoutAction } from "@/app/(auth)/actions";
 import NavLink from "./NavLink";
+import AuthLinks from "./auth/AuthLinks";
 
 // The right side of the navbar: depends on who is visiting, so it reads the cookie.
 // The Navbar wraps it in <Suspense>: the rest of the page doesn't wait for it.
@@ -9,19 +9,8 @@ export default async function UserMenu() {
   const user = await getCurrentUser();
 
   if (!user) {
-    return (
-      <div className="flex items-center gap-3">
-        <Link href="/login" className="text-zinc-400 transition hover:text-white">
-          Log in
-        </Link>
-        <Link
-          href="/register"
-          className="rounded-lg bg-amber-400 px-3.5 py-1.5 font-semibold text-zinc-950 transition hover:bg-amber-300"
-        >
-          Sign up
-        </Link>
-      </div>
-    );
+    // They bring the visitor back to this page after logging in or signing up
+    return <AuthLinks />;
   }
 
   return (
