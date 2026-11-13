@@ -1,6 +1,7 @@
 "use client"; // swaps the picture for the YouTube player on click
 
 import { useEffect, useRef, useState } from "react";
+import { showPlayer } from "@/lib/show-player";
 import MediaControls from "./MediaControls";
 
 type TrailerProps = {
@@ -70,7 +71,7 @@ export default function Trailer({ youtubeId, title }: TrailerProps) {
     // whole player (picture and buttons) comes to the middle of the screen
     requestAnimationFrame(() => {
       playButton.current?.focus({ preventScroll: true });
-      box.current?.scrollIntoView({ block: "center", behavior: "smooth" });
+      if (box.current) showPlayer(box.current);
     });
   }
 

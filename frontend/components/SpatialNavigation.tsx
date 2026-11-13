@@ -1,6 +1,7 @@
 "use client"; // listens to the keyboard (or a TV remote's arrow keys)
 
 import { useEffect } from "react";
+import { showPlayer } from "@/lib/show-player";
 
 // TV remotes have arrows, OK and Back, no mouse. Browsers on TVs turn the arrows into
 // arrow-key presses, which on a normal page only scroll it. Here they move the selection
@@ -154,7 +155,8 @@ function arrowsBelongTo(el: Element | null, key: string) {
 function bringIntoView(el: HTMLElement) {
   const shown = el instanceof HTMLInputElement && el.labels?.[0] ? el.labels[0] : el;
   const player = shown.closest<HTMLElement>(".media-box");
-  (player ?? shown).scrollIntoView({ block: "center", inline: "nearest", behavior: "smooth" });
+  if (player) showPlayer(player);
+  else shown.scrollIntoView({ block: "center", inline: "nearest", behavior: "smooth" });
 }
 
 export default function SpatialNavigation() {
@@ -241,12 +243,21 @@ export default function SpatialNavigation() {
       history.replaceState(null, "", `#${id}`);
       const first = player.querySelector<HTMLElement>(FOCUSABLE);
       first?.focus({ preventScroll: true });
-      player.scrollIntoView({ block: "center", behavior: "smooth" });
+      showPlayer(player);
     }
+
+    // The navbar's real height, for the video players' size (.media-fit in globals.css):
+    // a TV browser may draw it bigger than a computer does
+    const navbar = document.querySelector("header");
+    const measure = new ResizeObserver(() => {
+      if (navbar) document.documentElement.style.setProperty("--navbar", `${navbar.offsetHeight}px`);
+    });
+    if (navbar) measure.observe(navbar, { box: "border-box" });
 
     document.addEventListener("keydown", onKeyDown);
     document.addEventListener("click", onClick);
     return () => {
+      measure.disconnect();
       document.removeEventListener("keydown", onKeyDown);
       document.removeEventListener("click", onClick);
     };
