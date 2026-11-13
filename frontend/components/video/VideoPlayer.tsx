@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import type Hls from "hls.js";
+import MediaControls from "./MediaControls";
 
 type VideoPlayerProps = {
   // The HLS master playlist (.m3u8): it lists every quality, 144p to 1080p
@@ -26,6 +27,9 @@ export default function VideoPlayer({ src, poster, title }: VideoPlayerProps) {
   const [speed, setSpeed] = useState<number | null>(null);
   const [native, setNative] = useState(false);
   const [failed, setFailed] = useState(false);
+  const [playing, setPlaying] = useState(false);
+  const [muted, setMuted] = useState(false);
+  const box = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -89,9 +93,26 @@ export default function VideoPlayer({ src, poster, title }: VideoPlayerProps) {
     hls.currentLevel = index;
   }
 
+  // The buttons under the film (for TV remotes) drive the same <video>
+  function playPause() {
+    const video = videoRef.current;
+    if (!video) return;
+    if (video.paused) void video.play();
+    else video.pause();
+  }
+  function seek(seconds: number) {
+    const video = videoRef.current;
+    if (!video) return;
+    video.currentTime = Math.min(Math.max(0, video.currentTime + seconds), video.duration || Infinity);
+  }
+  function toggleMute() {
+    const video = videoRef.current;
+    if (video) video.muted = !video.muted;
+  }
+
   return (
     <div>
-      <div className="relative overflow-hidden rounded-2xl bg-black ring-1 ring-white/10">
+      <div ref={box} className="media-box relative overflow-hidden rounded-2xl bg-black ring-1 ring-white/10">
         <video
           ref={videoRef}
           controls
@@ -99,7 +120,10 @@ export default function VideoPlayer({ src, poster, title }: VideoPlayerProps) {
           preload="metadata"
           poster={poster ?? undefined}
           aria-label={title}
-          className="aspect-video w-full bg-black"
+          onPlay={() => setPlaying(true)}
+          onPause={() => setPlaying(false)}
+          onVolumeChange={(event) => setMuted(event.currentTarget.muted)}
+          className="media-screen aspect-video w-full bg-black"
         />
         {failed && (
           <div role="alert" className="absolute inset-0 grid place-items-center bg-black/80 p-6 text-center">
@@ -111,6 +135,14 @@ export default function VideoPlayer({ src, poster, title }: VideoPlayerProps) {
             </p>
           </div>
         )}
+        <MediaControls
+          box={box}
+          playing={playing}
+          muted={muted}
+          onPlayPause={playPause}
+          onSeek={seek}
+          onMute={toggleMute}
+        />
       </div>
 
       <div className="mt-3 flex flex-wrap items-center justify-between gap-3 text-sm">

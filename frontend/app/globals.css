@@ -31,3 +31,16 @@ h1, h2, h3, p, li, td, dd, dt, option {
   outline: 3px solid var(--color-amber-400);
   outline-offset: 3px;
 }
+
+/* A video in full screen (with its remote-friendly buttons): the picture fills the
+   screen above the buttons, instead of keeping its 16:9 box */
+.media-box:fullscreen {
+  display: flex;
+  flex-direction: column;
+  border-radius: 0;
+}
+.media-box:fullscreen .media-screen {
+  flex: 1;
+  min-height: 0;
+  aspect-ratio: auto;
+}

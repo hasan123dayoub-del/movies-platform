@@ -7,7 +7,8 @@ import { useEffect } from "react";
 // selection to the nearest link or button in that direction instead (like Netflix or
 // YouTube on a TV), and OK (Enter) opens it, as Enter always does on a selected link.
 
-const FOCUSABLE = "a[href], button:not([disabled]), input:not([disabled]):not([type=hidden]), select:not([disabled]), textarea:not([disabled]), video[controls], [tabindex]:not([tabindex='-1'])";
+// Not the <video> itself: OK does nothing on it, so the arrows go to the buttons under it
+const FOCUSABLE = "a[href], button:not([disabled]), input:not([disabled]):not([type=hidden]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex='-1'])";
 
 const DIRECTIONS = {
   ArrowUp: { x: 0, y: -1 },
@@ -16,7 +17,10 @@ const DIRECTIONS = {
   ArrowRight: { x: 1, y: 0 },
 } as const;
 
-type Direction = (typeof DIRECTIONS)[keyof typeof DIRECTIONS];
+const BACK_KEYS = new Set(["Escape", "GoBack", "BrowserBack", "XF86Back"]);
+const BACK_KEY_CODES = new Set([10009, 461]);
+
+type Direction =(typeof DIRECTIONS)[keyof typeof DIRECTIONS];
 
 // Shown and on screen space (pages kept hidden in memory have no size)
 function isVisible(el: Element) {
@@ -31,7 +35,9 @@ function nearest(from: DOMRect, { x, y }: Direction) {
   let best: HTMLElement | null = null;
   let bestScore = Infinity;
 
-  for (const el of document.querySelectorAll<HTMLElement>(FOCUSABLE)) {
+  // In full screen only what is shown counts (a video and its buttons), not the page behind
+  const root = document.fullscreenElement ?? document;
+  for (const el of root.querySelectorAll<HTMLElement>(FOCUSABLE)) {
     if (el === document.activeElement || !isVisible(el)) continue;
     const box = el.getBoundingClientRect();
     // Must be past the current item's edge in that direction
@@ -76,6 +82,14 @@ function arrowsBelongTo(el: Element | null, key: string) {
 export default function SpatialNavigation() {
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
+      // The remote's Back button leaves full screen (TVs send different keys for it:
+      // Escape on most, XF86Back / 10009 on Samsung, GoBack / 461 on LG)
+      if (document.fullscreenElement && (BACK_KEYS.has(event.key) || BACK_KEY_CODES.has(event.keyCode))) {
+        event.preventDefault();
+        void document.exitFullscreen();
+        return;
+      }
+
       const direction = DIRECTIONS[event.key as keyof typeof DIRECTIONS];
       if (!direction || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey || event.defaultPrevented) return;
 
