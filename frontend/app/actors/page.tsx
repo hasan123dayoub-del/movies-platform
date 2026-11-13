@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import Image from "next/image";
 import { getActorsPage } from "@/lib/api";
-import { getAge } from "@/lib/format";
+import { lifeOrAge } from "@/lib/format";
 import { getToday } from "@/lib/today";
 import { readPage, readSearch } from "@/lib/filters";
 import { toQuery } from "@/lib/api/query";
@@ -87,7 +87,7 @@ export default async function ActorsPage({ searchParams }: PageProps<"/actors">)
                   {actor.name}
                 </p>
                 <p className="mt-0.5 text-sm text-zinc-400">
-                  {actor.nationality} · {getAge(actor.birthday, today)}
+                  {actor.nationality} · {lifeOrAge(actor, today)}
                 </p>
               </div>
             </Link>

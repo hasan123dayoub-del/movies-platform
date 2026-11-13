@@ -97,6 +97,8 @@ export type Actor = {
   id: number;
   name: string;
   birthday: string;
+  // Set only for actors who have died
+  deathDate: string | null;
   nationality: string;
   photoUrl: string | null;
 };

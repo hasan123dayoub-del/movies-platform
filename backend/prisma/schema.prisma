@@ -39,6 +39,8 @@ model Actor {
   id          Int           @id @default(autoincrement())
   name        String
   birthday    DateTime      @db.Date
+  // Empty while the actor is alive; the site shows no age once it is set
+  deathDate   DateTime?     @db.Date
   nationality String
   photoUrl    String?
   movies      MovieActor[]

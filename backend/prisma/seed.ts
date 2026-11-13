@@ -12,6 +12,7 @@ import { reviewers, movieReviews, seriesReviews, type ReviewerKey } from "./data
 import { freeFilms, movieTrailers, seriesTrailers } from "./data/media.js";
 import { movieRuntimes } from "./data/runtimes.js";
 import { movieTmdbIds, seriesTmdbIds } from "./data/tmdb.js";
+import { actorDeaths } from "./data/deaths.js";
 
 // Public demo logins (also shown in the README), so they must stay harmless
 const demoAccounts = [
@@ -150,8 +151,13 @@ async function seedMediaLinks() {
   for (const [title, tmdbId] of Object.entries(seriesTmdbIds)) {
     tmdbIds += (await prisma.series.updateMany({ where: { title, tmdbId: null }, data: { tmdbId } })).count;
   }
-  if (added || trailers || runtimes || tmdbIds) {
-    console.log(`Added ${added} free films, ${trailers} trailers, ${runtimes} runtimes and ${tmdbIds} TMDB ids`);
+  // Dates of death, only where an actor has none yet
+  let deaths = 0;
+  for (const [name, date] of Object.entries(actorDeaths)) {
+    deaths += (await prisma.actor.updateMany({ where: { name, deathDate: null }, data: { deathDate: new Date(date) } })).count;
+  }
+  if (added || trailers || runtimes || tmdbIds || deaths) {
+    console.log(`Added ${added} free films, ${trailers} trailers, ${runtimes} runtimes, ${tmdbIds} TMDB ids and ${deaths} dates of death`);
   }
 }
 

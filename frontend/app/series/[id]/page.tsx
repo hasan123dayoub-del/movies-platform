@@ -3,7 +3,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getSeries } from "@/lib/api";
-import { formatDate, formatYears, plural } from "@/lib/format";
+import { formatYears, plural, bornAndDied } from "@/lib/format";
 import Poster from "@/components/Poster";
 import ActorAvatar from "@/components/ActorAvatar";
 import ReviewsSection, { MembersRating } from "@/components/reviews/ReviewsSection";
@@ -189,7 +189,7 @@ export default async function SeriesDetailPage({ params, searchParams }: PagePro
                   </p>
                   <p className="truncate text-sm text-zinc-400">as {role}</p>
                   <p className="mt-0.5 text-xs text-zinc-500">
-                    {actor.nationality} · Born {formatDate(actor.birthday)}
+                    {actor.nationality} · {bornAndDied(actor)}
                   </p>
                 </div>
               </Link>

@@ -19,6 +19,7 @@ export default function ActorForm({ action, actor, submitLabel }: ActorFormProps
       name: actor?.name ?? "",
       // The API sends "1952-06-07T00:00:00.000Z"; the date box wants "1952-06-07"
       birthday: actor ? actor.birthday.slice(0, 10) : "",
+      deathDate: actor?.deathDate ? actor.deathDate.slice(0, 10) : "",
       nationality: actor?.nationality ?? "",
       photoUrl: actor?.photoUrl ?? "",
     },
@@ -47,6 +48,16 @@ export default function ActorForm({ action, actor, submitLabel }: ActorFormProps
               type="date"
               defaultValue={values.birthday}
               aria-invalid={Boolean(errors.birthday)}
+              className={`${inputClass} scheme-dark`}
+            />
+          </Field>
+
+          <Field label="Date of death (only if they have died)" error={errors.deathDate}>
+            <input
+              name="deathDate"
+              type="date"
+              defaultValue={values.deathDate}
+              aria-invalid={Boolean(errors.deathDate)}
               className={`${inputClass} scheme-dark`}
             />
           </Field>

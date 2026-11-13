@@ -16,6 +16,7 @@ function readActorForm(formData: FormData) {
   const values = {
     name: readText(formData, "name"),
     birthday: readText(formData, "birthday"),
+    deathDate: readText(formData, "deathDate"),
     nationality: readText(formData, "nationality"),
     photoUrl: readText(formData, "photoUrl"),
   };
@@ -24,6 +25,8 @@ function readActorForm(formData: FormData) {
     name: values.name,
     // "required" instead of "invalid date" when the box is empty
     birthday: emptyToUndefined(values.birthday),
+    // An empty box means "alive" (it also clears a date set by mistake)
+    deathDate: emptyToNull(values.deathDate),
     nationality: values.nationality,
     photoUrl: emptyToNull(values.photoUrl),
   } as ActorInput;

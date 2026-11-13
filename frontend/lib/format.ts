@@ -20,6 +20,21 @@ export function formatDate(date: string) {
   });
 }
 
+// Under an actor's name in lists: the age, or "1979 – 2008" for an actor who has died
+// (no age: it would keep growing after their death)
+export function lifeOrAge(actor: { birthday: string; deathDate: string | null }, todayIso: string) {
+  if (actor.deathDate) {
+    return `${actor.birthday.slice(0, 4)} – ${actor.deathDate.slice(0, 4)}`;
+  }
+  return String(getAge(actor.birthday, todayIso));
+}
+
+// "Born 4 Apr 1979", plus "· Died 22 Jan 2008" for an actor who has died
+export function bornAndDied(actor: { birthday: string; deathDate: string | null }) {
+  const born = `Born ${formatDate(actor.birthday)}`;
+  return actor.deathDate ? `${born} · Died ${formatDate(actor.deathDate)}` : born;
+}
+
 // Full years between the birthday and `today` (from getToday(), see below)
 export function getAge(birthday: string, todayIso: string) {
   const born = new Date(birthday);

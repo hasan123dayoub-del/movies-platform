@@ -18,7 +18,7 @@ A platform for movies, TV series and actors: every movie and series has its cast
 I built this project on my own, end to end (November 2026), to apply what I learned in the Bytes4Future full-stack track (Aga Khan Foundation): TypeScript, Express, Prisma, PostgreSQL and Next.js, coming from Laravel.
 
 - **API:** 52 REST endpoints in Express 5 + TypeScript, in layers: routes → Zod validation → controllers → services → Prisma. One error handler turns database errors into clear answers (duplicate → 409, missing → 404).
-- **Database:** 10 PostgreSQL tables (movies, series, seasons, episodes, actors, two cast tables, users, reviews, watchlist) across 10 migrations, with cascading deletes, unique rules and hand-written `CHECK` rules (a review belongs to exactly one movie or series).
+- **Database:** 10 PostgreSQL tables (movies, series, seasons, episodes, actors, two cast tables, users, reviews, watchlist) across 11 migrations, with cascading deletes, unique rules and hand-written `CHECK` rules (a review belongs to exactly one movie or series).
 - **Auth:** bcrypt + JWT kept in an httpOnly cookie, `USER` / `ADMIN` roles, admin-only writes checked by the API, and a login limit that counts only failed attempts per email.
 - **Members:** 1-to-10 star ratings with optional reviews (one per member per title, averaged per title and sortable), a watchlist, and an account page; an admin overview built with `GROUP BY` queries.
 - **Website:** Next.js 16 Server Components and Server Actions; cached pages that refresh on every admin change; live search; Arabic titles shown right to left.
@@ -26,7 +26,7 @@ I built this project on my own, end to end (November 2026), to apply what I lear
 - **Docs:** interactive OpenAPI 3.1 docs (Swagger UI) at `/docs`, generated from the Zod validation schemas.
 - **Video:** adaptive streaming (HLS) of two open films in six qualities, 144p to 1080p, encoded with ffmpeg and played with hls.js (Auto or a chosen quality); official trailers for 42 titles, each checked to come from the studio, the network or an official channel.
 - **Where to watch:** each title's legal streaming, rental and purchase offers in the visitor's country, from the TMDB API (JustWatch data), cached for 12 hours; the country comes from the browser's language and can be changed.
-- **Quality:** 83 API tests (Vitest + Supertest) against a real PostgreSQL; GitHub Actions also builds the website against a running API on every push.
+- **Quality:** 87 API tests (Vitest + Supertest) against a real PostgreSQL; GitHub Actions also builds the website against a running API on every push.
 - **Deployment:** two Docker services on Render plus Neon PostgreSQL; migrations run on start, and the sample data is loaded only into an empty database.
 
 ## Features
@@ -114,7 +114,7 @@ Movie ──< MovieActor >── Actor
 ```
 
 - **Movie:** title, type, rating, director, release year, runtime (minutes), description, poster URL, trailer (YouTube id), stream (HLS playlist, only for free films), TMDB id
-- **Actor:** name, birthday, nationality, photo URL
+- **Actor:** name, birthday, date of death (if they have died: the site then shows no age), nationality, photo URL
 - **MovieActor:** links an actor to a movie with the role they played (deleting a movie or actor removes its links)
 - **Series:** title, type, rating, creator, first and last year (empty = still running), description, poster URL, trailer, TMDB id
 - **Season:** number (unique in its series), optional title, year, description, poster

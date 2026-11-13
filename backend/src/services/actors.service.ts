@@ -6,6 +6,7 @@ import type {
   CreateActorInput,
   UpdateActorInput,
 } from "../schemas/actor.schema.js";
+import { deathAfterBirth, DEATH_BEFORE_BIRTH } from "../schemas/actor.schema.js";
 
 // Like Actor::findOrFail($id)
 export async function findActorOrFail(id: number) {
@@ -52,7 +53,13 @@ export function createActor(data: CreateActorInput) {
 }
 
 export async function updateActor(id: number, data: UpdateActorInput) {
-  await findActorOrFail(id);
+  const saved = await findActorOrFail(id);
+  // One of the two dates may be new and the other the saved one
+  const birthday = data.birthday ?? saved.birthday;
+  const deathDate = data.deathDate === undefined ? saved.deathDate : data.deathDate;
+  if (!deathAfterBirth(birthday, deathDate)) {
+    throw new HttpError(400, "Validation failed", [{ field: "deathDate", message: DEATH_BEFORE_BIRTH }]);
+  }
   return prisma.actor.update({ where: { id }, data });
 }
 

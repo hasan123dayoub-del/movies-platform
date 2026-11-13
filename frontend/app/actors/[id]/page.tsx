@@ -68,9 +68,19 @@ export default async function ActorPage({ params }: PageProps<"/actors/[id]">) {
                     Born
                   </dt>
                   <dd className="font-medium">
-                    {formatDate(actor.birthday)} ({getAge(actor.birthday, today)})
+                    {formatDate(actor.birthday)}
+                    {/* No age for an actor who has died */}
+                    {!actor.deathDate && ` (${getAge(actor.birthday, today)})`}
                   </dd>
                 </div>
+                {actor.deathDate && (
+                  <div>
+                    <dt className="text-xs uppercase tracking-wider text-zinc-500">
+                      Died
+                    </dt>
+                    <dd className="font-medium">{formatDate(actor.deathDate)}</dd>
+                  </div>
+                )}
                 <div>
                   <dt className="text-xs uppercase tracking-wider text-zinc-500">
                     Nationality
