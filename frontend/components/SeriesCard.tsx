@@ -17,7 +17,7 @@ export default function SeriesCard({ series, subtitle }: SeriesCardProps) {
   return (
     <Link
       href={`/series/${series.id}`}
-      className="group block overflow-hidden rounded-2xl border border-white/10 bg-zinc-900 transition duration-300 hover:-translate-y-1 hover:border-white/20 hover:shadow-2xl hover:shadow-black/60"
+      className="group block overflow-hidden rounded-2xl border border-white/10 bg-zinc-900 transition duration-300 hover:-translate-y-1 focus-visible:-translate-y-1 focus-visible:border-amber-400 hover:border-white/20 hover:shadow-2xl hover:shadow-black/60"
     >
       <div className="relative aspect-2/3 overflow-hidden">
         <div className="absolute inset-0 transition duration-500 group-hover:scale-105">

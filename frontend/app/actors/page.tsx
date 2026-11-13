@@ -65,7 +65,7 @@ export default async function ActorsPage({ searchParams }: PageProps<"/actors">)
             <Link
               key={actor.id}
               href={`/actors/${actor.id}`}
-              className="group overflow-hidden rounded-2xl border border-white/10 bg-zinc-900 transition duration-300 hover:-translate-y-1 hover:border-white/20 hover:shadow-2xl hover:shadow-black/60"
+              className="group overflow-hidden rounded-2xl border border-white/10 bg-zinc-900 transition duration-300 hover:-translate-y-1 focus-visible:-translate-y-1 focus-visible:border-amber-400 hover:border-white/20 hover:shadow-2xl hover:shadow-black/60"
             >
               <div className="relative aspect-3/4 overflow-hidden bg-zinc-800">
                 {actor.photoUrl ? (

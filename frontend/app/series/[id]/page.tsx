@@ -141,7 +141,7 @@ export default async function SeriesDetailPage({ params, searchParams }: PagePro
               <Link
                 key={season.id}
                 href={`/series/${series.id}/seasons/${season.number}`}
-                className="group overflow-hidden rounded-2xl border border-white/10 bg-zinc-900 transition duration-300 hover:-translate-y-1 hover:border-white/20"
+                className="group overflow-hidden rounded-2xl border border-white/10 bg-zinc-900 transition duration-300 hover:-translate-y-1 focus-visible:-translate-y-1 focus-visible:border-amber-400 hover:border-white/20"
               >
                 <div className="relative aspect-2/3 overflow-hidden">
                   <div className="absolute inset-0 transition duration-500 group-hover:scale-105">

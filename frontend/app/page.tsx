@@ -66,7 +66,7 @@ export default async function Home() {
               href={`/movies/${featured.id}`}
               className="group hidden w-56 md:block"
             >
-              <div className="relative aspect-2/3 overflow-hidden rounded-2xl shadow-2xl shadow-black ring-1 ring-white/10 transition duration-300 group-hover:-translate-y-1">
+              <div className="relative aspect-2/3 overflow-hidden rounded-2xl shadow-2xl shadow-black ring-1 ring-white/10 transition duration-300 group-hover:-translate-y-1 focus-visible:-translate-y-1 focus-visible:border-amber-400">
                 <Poster movie={featured} sizes="224px" eager />
               </div>
               <p className="mt-3 text-xs font-semibold uppercase tracking-wider text-amber-400">

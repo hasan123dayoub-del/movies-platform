@@ -24,3 +24,10 @@ body {
 h1, h2, h3, p, li, td, dd, dt, option {
   unicode-bidi: plaintext;
 }
+
+/* Keyboard and TV-remote focus: a clear amber ring around whatever is selected, so a
+   viewer moving with the arrow keys always sees where they are (mouse clicks don't show it) */
+:focus-visible {
+  outline: 3px solid var(--color-amber-400);
+  outline-offset: 3px;
+}
