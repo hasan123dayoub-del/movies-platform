@@ -32,9 +32,10 @@ h1, h2, h3, p, li, td, dd, dt, option {
   outline-offset: 3px;
 }
 
-/* A video in full screen (with its remote-friendly buttons): the picture fills the
-   screen above the buttons, instead of keeping its 16:9 box */
+/* A video in full screen: the picture fills the whole screen (instead of keeping its
+   16:9 box), and its remote-friendly buttons float over the bottom of it */
 .media-box:fullscreen {
+  position: relative;
   display: flex;
   flex-direction: column;
   border-radius: 0;
