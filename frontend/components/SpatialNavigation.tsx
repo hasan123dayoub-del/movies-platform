@@ -149,6 +149,14 @@ function arrowsBelongTo(el: Element | null, key: string) {
   return el instanceof HTMLElement && el.isContentEditable;
 }
 
+// Bring something to the middle of the screen. Anything in a video player brings the
+// whole player (picture and buttons), so the video is never cut in half.
+function bringIntoView(el: HTMLElement) {
+  const shown = el instanceof HTMLInputElement && el.labels?.[0] ? el.labels[0] : el;
+  const player = shown.closest<HTMLElement>(".media-box");
+  (player ?? shown).scrollIntoView({ block: "center", inline: "nearest", behavior: "smooth" });
+}
+
 export default function SpatialNavigation() {
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
@@ -217,15 +225,31 @@ export default function SpatialNavigation() {
       if (isTextBox(target)) selectTextBox(target);
       target.focus({ preventScroll: true });
       // In the middle of the screen, so the navbar stuck at the top never hides it
-      (target instanceof HTMLInputElement && target.labels?.[0] ? target.labels[0] : target).scrollIntoView({
-        block: "center",
-        inline: "nearest",
-        behavior: "smooth",
-      });
+      bringIntoView(target);
+    }
+
+    // "▶ Trailer" and "▶ Watch now" jump to a player (#trailer, #watch): show the whole
+    // player in the middle of the screen and select it, instead of the browser's jump
+    // that puts its heading at the top and cuts the video off at the bottom
+    function onClick(event: MouseEvent) {
+      const link = (event.target as Element | null)?.closest?.("a[href^='#']");
+      const id = link?.getAttribute("href")?.slice(1);
+      const section = id ? document.getElementById(id) : null;
+      const player = section?.querySelector<HTMLElement>(".media-box");
+      if (!player) return;
+      event.preventDefault();
+      history.replaceState(null, "", `#${id}`);
+      const first = player.querySelector<HTMLElement>(FOCUSABLE);
+      first?.focus({ preventScroll: true });
+      player.scrollIntoView({ block: "center", behavior: "smooth" });
     }
 
     document.addEventListener("keydown", onKeyDown);
-    return () => document.removeEventListener("keydown", onKeyDown);
+    document.addEventListener("click", onClick);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      document.removeEventListener("click", onClick);
+    };
   }, []);
 
   return null;

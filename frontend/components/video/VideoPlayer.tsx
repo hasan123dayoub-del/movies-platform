@@ -111,7 +111,8 @@ export default function VideoPlayer({ src, poster, title }: VideoPlayerProps) {
   }
 
   return (
-    <div>
+    // The player and its buttons always fit on the screen as a whole (see .media-fit)
+    <div className="media-fit">
       <div ref={box} className="media-box relative overflow-hidden rounded-2xl bg-black ring-1 ring-white/10">
         <video
           ref={videoRef}
@@ -119,12 +120,22 @@ export default function VideoPlayer({ src, poster, title }: VideoPlayerProps) {
           playsInline
           preload="metadata"
           poster={poster ?? undefined}
-          aria-label={title}
+          aria-label={`${title}: OK plays or pauses`}
+          // The picture can be selected with the remote (Up from the buttons); OK on it plays or pauses
+          tabIndex={0}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") {
+              event.preventDefault();
+              playPause();
+            }
+          }}
           onPlay={() => setPlaying(true)}
           onPause={() => setPlaying(false)}
           onVolumeChange={(event) => setMuted(event.currentTarget.muted)}
-          className="media-screen aspect-video w-full bg-black"
+          className="media-screen peer aspect-video w-full bg-black focus-visible:outline-none"
         />
+        {/* The ring that shows the picture is selected (an outline would be cut off) */}
+        <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 aspect-video ring-4 ring-inset ring-amber-400 opacity-0 transition peer-focus-visible:opacity-100" />
         {failed && (
           <div role="alert" className="absolute inset-0 grid place-items-center bg-black/80 p-6 text-center">
             <p>

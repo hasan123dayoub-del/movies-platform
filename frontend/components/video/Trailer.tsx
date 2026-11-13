@@ -58,16 +58,37 @@ export default function Trailer({ youtubeId, title }: TrailerProps) {
   }
   const command = (func: string, args: unknown[] = []) => send({ event: "command", func, args });
 
+  function togglePlay() {
+    command(playing ? "pauseVideo" : "playVideo");
+    setPlaying(!playing);
+  }
+
   function start() {
     setStarted(true);
     setPlaying(true);
-    // The remote's selection goes to Play/Pause, ready to control the trailer
-    requestAnimationFrame(() => playButton.current?.focus());
+    // The remote's selection goes to Play/Pause, ready to control the trailer, and the
+    // whole player (picture and buttons) comes to the middle of the screen
+    requestAnimationFrame(() => {
+      playButton.current?.focus({ preventScroll: true });
+      box.current?.scrollIntoView({ block: "center", behavior: "smooth" });
+    });
   }
 
   return (
-    <div ref={box} className="media-box overflow-hidden rounded-2xl bg-black ring-1 ring-white/10">
-      <div className="media-screen relative aspect-video">
+    <div ref={box} className="media-box media-fit overflow-hidden rounded-2xl bg-black ring-1 ring-white/10">
+      {/* While it plays, the picture itself can be selected (Up from the buttons):
+          OK on it plays or pauses, like on a TV app */}
+      <div
+        className="media-screen group/screen relative aspect-video focus-visible:outline-none"
+        tabIndex={started ? 0 : undefined}
+        aria-label={started ? `${title} trailer: OK plays or pauses` : undefined}
+        onKeyDown={(event) => {
+          if (started && event.key === "Enter" && event.target === event.currentTarget) {
+            event.preventDefault();
+            togglePlay();
+          }
+        }}
+      >
         {started ? (
           <iframe
             ref={frame}
@@ -101,6 +122,7 @@ export default function Trailer({ youtubeId, title }: TrailerProps) {
             </span>
           </button>
         )}
+        {started && <span aria-hidden className="pointer-events-none absolute inset-0 ring-4 ring-inset ring-amber-400 opacity-0 transition group-focus-visible/screen:opacity-100" />}
       </div>
 
       {started && (
@@ -109,10 +131,7 @@ export default function Trailer({ youtubeId, title }: TrailerProps) {
           playButton={playButton}
           playing={playing}
           muted={muted}
-          onPlayPause={() => {
-            command(playing ? "pauseVideo" : "playVideo");
-            setPlaying(!playing);
-          }}
+          onPlayPause={togglePlay}
           onSeek={(seconds) => command("seekTo", [Math.max(0, time.current + seconds), true])}
           onMute={() => {
             command(muted ? "unMute" : "mute");

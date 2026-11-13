@@ -45,3 +45,19 @@ h1, h2, h3, p, li, td, dd, dt, option {
   min-height: 0;
   aspect-ratio: auto;
 }
+
+/* A video with its buttons always fits on the screen as a whole, even on a TV whose
+   browser bar and our navbar leave a short window: it gets narrower (keeping 16:9)
+   when the window is not tall enough. 10rem = the navbar, the buttons and some room. */
+.media-fit {
+  max-width: min(100%, calc((100svh - 10rem) * 16 / 9));
+  margin-inline: auto;
+}
+/* When a player is brought to the middle of the screen, the navbar stuck at the top
+   counts: it is centred in the space below it, not hidden under it */
+.media-box {
+  scroll-margin-top: 4rem;
+}
+.media-fit:fullscreen {
+  max-width: none;
+}

@@ -45,7 +45,7 @@ export function useFullscreen(box: RefObject<HTMLElement | null>) {
 }
 
 const buttonClass =
-  "flex min-h-11 items-center gap-2 rounded-lg bg-white/10 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/20 focus-visible:bg-amber-400 focus-visible:text-zinc-950";
+  "flex min-h-11 shrink-0 items-center gap-1.5 rounded-lg bg-white/10 px-3 py-2 text-sm font-semibold whitespace-nowrap text-white transition hover:bg-white/20 focus-visible:bg-amber-400 focus-visible:text-zinc-950";
 
 export default function MediaControls({ playing, muted, onPlayPause, onSeek, onMute, box, playButton }: MediaControlsProps) {
   const { fullscreen, toggle } = useFullscreen(box);
@@ -100,14 +100,14 @@ export default function MediaControls({ playing, muted, onPlayPause, onSeek, onM
     <div
       role="group"
       aria-label="Video controls"
-      className={`${place} flex flex-wrap items-center justify-center gap-2 p-3 transition-opacity duration-300 ${
+      className={`${place} flex flex-wrap items-center justify-center gap-1.5 p-2.5 transition-opacity duration-300 ${
         hidden ? "pointer-events-none opacity-0" : "opacity-100"
       }`}
     >
       <button type="button" onClick={() => onSeek(-10)} className={buttonClass} aria-label="Back 10 seconds">
         <span aria-hidden>⏪</span> 10s
       </button>
-      <button ref={playButton} type="button" onClick={onPlayPause} className={`${buttonClass} min-w-28 justify-center`}>
+      <button ref={playButton} type="button" onClick={onPlayPause} className={`${buttonClass} min-w-24 justify-center`}>
         <span aria-hidden>{playing ? "⏸" : "▶"}</span> {playing ? "Pause" : "Play"}
       </button>
       <button type="button" onClick={() => onSeek(10)} className={buttonClass} aria-label="Forward 10 seconds">
