@@ -22,6 +22,7 @@ function readMovieForm(formData: FormData) {
     releaseYear: readText(formData, "releaseYear"),
     runtime: readText(formData, "runtime"),
     description: readText(formData, "description"),
+    descriptionAr: readText(formData, "descriptionAr"),
     posterUrl: readText(formData, "posterUrl"),
     trailer: readText(formData, "trailer"),
     tmdb: readText(formData, "tmdb"),
@@ -39,6 +40,7 @@ function readMovieForm(formData: FormData) {
     runtime: values.runtime === "" ? null : Number(values.runtime),
     // An empty box means "no description"
     description: emptyToNull(values.description),
+    descriptionAr: emptyToNull(values.descriptionAr),
     posterUrl: emptyToNull(values.posterUrl),
     // The API turns any YouTube link into the video id
     trailerYoutubeId: emptyToNull(values.trailer),

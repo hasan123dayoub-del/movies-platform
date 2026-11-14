@@ -13,6 +13,7 @@ import { freeFilms, movieTrailers, seriesTrailers } from "./data/media.js";
 import { movieRuntimes } from "./data/runtimes.js";
 import { movieTmdbIds, seriesTmdbIds } from "./data/tmdb.js";
 import { actorDeaths } from "./data/deaths.js";
+import { movieDescriptionsAr, seriesDescriptionsAr } from "./data/descriptions.js";
 
 // Public demo logins (also shown in the README), so they must stay harmless
 const demoAccounts = [
@@ -156,9 +157,32 @@ async function seedMediaLinks() {
   for (const [name, date] of Object.entries(actorDeaths)) {
     deaths += (await prisma.actor.updateMany({ where: { name, deathDate: null }, data: { deathDate: new Date(date) } })).count;
   }
-  if (added || trailers || runtimes || tmdbIds || deaths) {
-    console.log(`Added ${added} free films, ${trailers} trailers, ${runtimes} runtimes, ${tmdbIds} TMDB ids and ${deaths} dates of death`);
+  const arabic = await seedArabicDescriptions();
+  if (added || trailers || runtimes || tmdbIds || deaths || arabic) {
+    console.log(
+      `Added ${added} free films, ${trailers} trailers, ${runtimes} runtimes, ${tmdbIds} TMDB ids, ` +
+        `${deaths} dates of death and ${arabic} Arabic descriptions`,
+    );
   }
+}
+
+// The Arabic summaries (prisma/data/descriptions.ts), only where a title has none yet.
+// The Arabic films and series first get their English summary in `description`, but only
+// while it is still the Arabic text the seed once put there (so an admin's text stays).
+async function seedArabicDescriptions() {
+  const english = new Map<string, string>([...movies, ...freeFilms, ...series].map((t) => [t.title, t.description]));
+  let filled = 0;
+  for (const [title, descriptionAr] of Object.entries(movieDescriptionsAr)) {
+    const description = english.get(title);
+    if (description) await prisma.movie.updateMany({ where: { title, description: descriptionAr }, data: { description } });
+    filled += (await prisma.movie.updateMany({ where: { title, descriptionAr: null }, data: { descriptionAr } })).count;
+  }
+  for (const [title, descriptionAr] of Object.entries(seriesDescriptionsAr)) {
+    const description = english.get(title);
+    if (description) await prisma.series.updateMany({ where: { title, description: descriptionAr }, data: { description } });
+    filled += (await prisma.series.updateMany({ where: { title, descriptionAr: null }, data: { descriptionAr } })).count;
+  }
+  return filled;
 }
 
 // Sample member reviews (prisma/data/reviews.ts), only while there are no reviews at all,

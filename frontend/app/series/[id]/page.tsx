@@ -89,6 +89,11 @@ export default async function SeriesDetailPage({ params, searchParams }: PagePro
                   {series.description}
                 </p>
               )}
+              {series.descriptionAr && (
+                <p dir="rtl" lang="ar" className="mt-3 max-w-2xl text-lg leading-loose text-zinc-400">
+                  {series.descriptionAr}
+                </p>
+              )}
 
               <dl className="mt-6 flex flex-wrap items-center gap-x-8 gap-y-4">
                 <div className="flex items-baseline gap-1">

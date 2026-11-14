@@ -25,6 +25,7 @@ export default function MovieForm({ action, movie, genres, submitLabel }: MovieF
       releaseYear: movie?.releaseYear ? String(movie.releaseYear) : "",
       runtime: movie?.runtime ? String(movie.runtime) : "",
       description: movie?.description ?? "",
+      descriptionAr: movie?.descriptionAr ?? "",
       posterUrl: movie?.posterUrl ?? "",
       trailer: movie?.trailerYoutubeId ? `https://www.youtube.com/watch?v=${movie.trailerYoutubeId}` : "",
       tmdb: movie?.tmdbId ? String(movie.tmdbId) : "",
@@ -127,6 +128,20 @@ export default function MovieForm({ action, movie, genres, submitLabel }: MovieF
             defaultValue={values.description}
             placeholder="What is the movie about? One or two sentences."
             aria-invalid={Boolean(errors.description)}
+            className={`${inputClass} resize-y`}
+          />
+        </Field>
+
+        <Field label="Description in Arabic (optional)" error={errors.descriptionAr}>
+          <textarea
+            name="descriptionAr"
+            dir="rtl"
+            lang="ar"
+            rows={4}
+            maxLength={1000}
+            defaultValue={values.descriptionAr}
+            placeholder="عمّ يدور هذا الفيلم؟ جملة أو جملتان."
+            aria-invalid={Boolean(errors.descriptionAr)}
             className={`${inputClass} resize-y`}
           />
         </Field>

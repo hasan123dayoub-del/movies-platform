@@ -17,8 +17,10 @@ model Movie {
   releaseYear      Int?
   // Length in minutes (like an episode's runtime)
   runtime          Int?
-  // A short summary of the story
+  // A short summary of the story, in English
   description      String?
+  // The same summary in Arabic (shown under the English one)
+  descriptionAr    String?
   posterUrl        String?
   // The YouTube id of its official trailer (shown on its page)
   trailerYoutubeId String?
@@ -58,7 +60,9 @@ model Series {
   startYear        Int
   // null = still running
   endYear          Int?
+  // A short summary, in English, and the same in Arabic
   description      String?
+  descriptionAr    String?
   posterUrl        String?
   // The YouTube id of its official trailer
   trailerYoutubeId String?

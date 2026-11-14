@@ -26,6 +26,8 @@ const seriesFields = {
   // null = still running
   endYear: yearField("Last year").nullable().exactOptional(),
   description: optionalText("Description"),
+  // The same summary in Arabic
+  descriptionAr: optionalText("Arabic description"),
   posterUrl: optionalImageUrl("Poster"),
   trailerYoutubeId: optionalYoutubeVideo("Trailer"),
   tmdbId: tmdbIdField(),

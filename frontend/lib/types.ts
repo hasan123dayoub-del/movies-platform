@@ -8,7 +8,9 @@ export type Movie = {
   releaseYear: number | null;
   // Length in minutes
   runtime: number | null;
+  // The summary in English, and the same in Arabic
   description: string | null;
+  descriptionAr: string | null;
   posterUrl: string | null;
   // The YouTube id of its official trailer
   trailerYoutubeId: string | null;
@@ -47,7 +49,9 @@ export type Series = {
   startYear: number;
   // null = still running
   endYear: number | null;
+  // The summary in English, and the same in Arabic
   description: string | null;
+  descriptionAr: string | null;
   posterUrl: string | null;
   // The YouTube id of its official trailer
   trailerYoutubeId: string | null;

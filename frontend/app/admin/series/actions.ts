@@ -46,6 +46,7 @@ function readSeriesForm(formData: FormData) {
     startYear: readText(formData, "startYear"),
     endYear: readText(formData, "endYear"),
     description: readText(formData, "description"),
+    descriptionAr: readText(formData, "descriptionAr"),
     posterUrl: readText(formData, "posterUrl"),
     trailer: readText(formData, "trailer"),
     tmdb: readText(formData, "tmdb"),
@@ -59,6 +60,7 @@ function readSeriesForm(formData: FormData) {
     // Left empty = the series is still running
     endYear: toNumberOrNull(values.endYear),
     description: emptyToNull(values.description),
+    descriptionAr: emptyToNull(values.descriptionAr),
     posterUrl: emptyToNull(values.posterUrl),
     trailerYoutubeId: emptyToNull(values.trailer),
     tmdbId: tmdbIdFrom(values.tmdb),

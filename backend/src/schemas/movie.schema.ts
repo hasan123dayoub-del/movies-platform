@@ -23,6 +23,8 @@ export const createMovieSchema = z.object({
   releaseYear: yearField("Release year"),
   runtime: runtimeField(),
   description: optionalText("Description"),
+  // The same summary in Arabic
+  descriptionAr: optionalText("Arabic description"),
   posterUrl: optionalImageUrl("Poster"),
   trailerYoutubeId: optionalYoutubeVideo("Trailer"),
   // Only for films that may be shared for free (e.g. Creative Commons)

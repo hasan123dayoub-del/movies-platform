@@ -25,6 +25,7 @@ export default function SeriesForm({ action, series, genres, submitLabel }: Seri
       startYear: series ? String(series.startYear) : "",
       endYear: series?.endYear ? String(series.endYear) : "",
       description: series?.description ?? "",
+      descriptionAr: series?.descriptionAr ?? "",
       posterUrl: series?.posterUrl ?? "",
       trailer: series?.trailerYoutubeId ? `https://www.youtube.com/watch?v=${series.trailerYoutubeId}` : "",
       tmdb: series?.tmdbId ? String(series.tmdbId) : "",
@@ -125,6 +126,20 @@ export default function SeriesForm({ action, series, genres, submitLabel }: Seri
             defaultValue={values.description}
             placeholder="What is the series about? One or two sentences."
             aria-invalid={Boolean(errors.description)}
+            className={`${inputClass} resize-y`}
+          />
+        </Field>
+
+        <Field label="Description in Arabic (optional)" error={errors.descriptionAr}>
+          <textarea
+            name="descriptionAr"
+            dir="rtl"
+            lang="ar"
+            rows={4}
+            maxLength={1000}
+            defaultValue={values.descriptionAr}
+            placeholder="عمّ يدور هذا المسلسل؟ جملة أو جملتان."
+            aria-invalid={Boolean(errors.descriptionAr)}
             className={`${inputClass} resize-y`}
           />
         </Field>

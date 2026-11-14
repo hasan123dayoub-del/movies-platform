@@ -6,7 +6,7 @@
 
 > Hosted on free plans: after 15 minutes without visitors the site and the API go to sleep, so the first visit can take about a minute to wake them up.
 
-A platform for movies, TV series and actors: every movie and series has its cast, every series has its seasons and episodes, and every actor has the role they played in each. Arabic titles are shown in Arabic (right to left) next to English ones. A public site to browse them, and an admin area to manage them.
+A platform for movies, TV series and actors: every movie and series has its cast, every series has its seasons and episodes, and every actor has the role they played in each. Arabic titles are shown in Arabic (right to left) next to English ones, and every movie and series has its summary in both English and Arabic. A public site to browse them, and an admin area to manage them.
 
 - **Backend:** Express 5 + TypeScript + Prisma 7 + PostgreSQL 17 (Docker) + Zod 4
 - **Frontend:** Next.js 16 (App Router, Server Components, Server Actions) + React 19 + Tailwind CSS 4
@@ -18,15 +18,15 @@ A platform for movies, TV series and actors: every movie and series has its cast
 I built this project on my own, end to end (November 2026), to apply what I learned in the Bytes4Future full-stack track (Aga Khan Foundation): TypeScript, Express, Prisma, PostgreSQL and Next.js, coming from Laravel.
 
 - **API:** 52 REST endpoints in Express 5 + TypeScript, in layers: routes → Zod validation → controllers → services → Prisma. One error handler turns database errors into clear answers (duplicate → 409, missing → 404).
-- **Database:** 10 PostgreSQL tables (movies, series, seasons, episodes, actors, two cast tables, users, reviews, watchlist) across 11 migrations, with cascading deletes, unique rules and hand-written `CHECK` rules (a review belongs to exactly one movie or series).
+- **Database:** 10 PostgreSQL tables (movies, series, seasons, episodes, actors, two cast tables, users, reviews, watchlist) across 12 migrations, with cascading deletes, unique rules and hand-written `CHECK` rules (a review belongs to exactly one movie or series).
 - **Auth:** bcrypt + JWT kept in an httpOnly cookie, `USER` / `ADMIN` roles, admin-only writes checked by the API, and a login limit that counts only failed attempts per email.
 - **Members:** 1-to-10 star ratings with optional reviews (one per member per title, averaged per title and sortable), a watchlist, and an account page; an admin overview built with `GROUP BY` queries.
-- **Website:** Next.js 16 Server Components and Server Actions; cached pages that refresh on every admin change; live search; Arabic titles shown right to left.
+- **Website:** Next.js 16 Server Components and Server Actions; cached pages that refresh on every admin change; live search; Arabic titles shown right to left, and every summary in English with its Arabic version under it.
 - **Data:** 35 movies, 16 series, 67 seasons, 1,042 episodes and 78 actors, collected from the Wikipedia and Wikidata APIs.
 - **Docs:** interactive OpenAPI 3.1 docs (Swagger UI) at `/docs`, generated from the Zod validation schemas.
 - **Video:** adaptive streaming (HLS) of two open films in six qualities, 144p to 1080p, encoded with ffmpeg and played with hls.js (Auto or a chosen quality); official trailers for 42 titles, each checked to come from the studio, the network or an official channel.
 - **Where to watch:** each title's legal streaming, rental and purchase offers in the visitor's country, from the TMDB API (JustWatch data), cached for 12 hours; the country comes from the browser's language and can be changed.
-- **Quality:** 87 API tests (Vitest + Supertest) against a real PostgreSQL; GitHub Actions also builds the website against a running API on every push.
+- **Quality:** 92 API tests (Vitest + Supertest) against a real PostgreSQL; GitHub Actions also builds the website against a running API on every push.
 - **Deployment:** two Docker services on Render plus Neon PostgreSQL; migrations run on start, and the sample data is loaded only into an empty database.
 
 ## Features
@@ -34,7 +34,7 @@ I built this project on my own, end to end (November 2026), to apply what I lear
 **Public site**
 - Home page with the top rated movies and collection stats
 - All movies with **live search** (results follow what you type, titles that start with the text first), a genre filter, sorting (A to Z, top rated, newest) and pages of 12; every choice is in the URL, so it can be shared
-- A page per movie with its poster, year, length, description, director and cast, and its official trailer
+- A page per movie with its poster, year, length, director and cast, its official trailer, and its description in English with the Arabic one under it
 - **Where to watch:** the services that offer each movie or series in your country (stream, free, rent, buy), with a country menu that remembers your choice
 - **Free to watch:** two open films (Blender Foundation, CC BY 3.0) play in full on their page with a quality menu from 144p to 1080p; "Auto" adapts to the connection while playing, like YouTube
 - TV series with the same live search, filter and sort; a page per series (years, ongoing/ended, seasons, cast) and per season (its episodes with air date and runtime)
@@ -113,10 +113,10 @@ Movie ──< MovieActor >── Actor
           (role)
 ```
 
-- **Movie:** title, type, rating, director, release year, runtime (minutes), description, poster URL, trailer (YouTube id), stream (HLS playlist, only for free films), TMDB id
+- **Movie:** title, type, rating, director, release year, runtime (minutes), description and its Arabic version, poster URL, trailer (YouTube id), stream (HLS playlist, only for free films), TMDB id
 - **Actor:** name, birthday, date of death (if they have died: the site then shows no age), nationality, photo URL
 - **MovieActor:** links an actor to a movie with the role they played (deleting a movie or actor removes its links)
-- **Series:** title, type, rating, creator, first and last year (empty = still running), description, poster URL, trailer, TMDB id
+- **Series:** title, type, rating, creator, first and last year (empty = still running), description and its Arabic version, poster URL, trailer, TMDB id
 - **Season:** number (unique in its series), optional title, year, description, poster
 - **Episode:** number (unique in its season), title, air date, runtime, description
 - **SeriesActor:** links an actor to a series with their role
@@ -263,7 +263,8 @@ Without a search, the database returns only the requested page (`LIMIT`/`OFFSET`
 ```jsonc
 // POST /movies (posterUrl is optional)
 { "title": "Interstellar", "type": "Sci-Fi", "rating": 8.7, "director": "Christopher Nolan", "releaseYear": 2014,
-  "description": "A team travels through a wormhole to find humanity a new home." }
+  "description": "A team travels through a wormhole to find humanity a new home.",
+  "descriptionAr": "فريق يعبر ثقباً دودياً بحثاً عن موطن جديد للبشرية." }
 
 // POST /actors (birthday is YYYY-MM-DD and can't be in the future)
 { "name": "Cillian Murphy", "birthday": "1976-05-25", "nationality": "Irish" }

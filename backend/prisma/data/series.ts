@@ -253,11 +253,12 @@ export const series: SeriesData[] = [
     cast: [["ursula", "Tokyo"], ["alvaro", "The Professor"]],
   },
 
-  // ---------- Arabic series: every detail in Arabic ----------
+  // ---------- Arabic series: every detail in Arabic, except the summary (in English
+  // here, like every title; its Arabic is in descriptions.ts) ----------
   {
     title: "الهيبة", type: "أكشن", rating: 7.1, creator: "سامر البرقاوي",
     startYear: 2017, endYear: 2021,
-    description: "جبل شيخ الجبل، زعيم عائلة قوية في قرية الهيبة على الحدود اللبنانية السورية، يحكم بالولاء والخوف، بينما تختبر الثارات العائلية والأعداء قبضته كل يوم.",
+    description: "Jabal Sheikh al-Jabal, head of a powerful family in the village of Al Hayba on the Lebanese–Syrian border, rules through loyalty and fear, while family feuds and enemies test his grip every day.",
     posterUrl: `${WIKI_AR}/b/ba/AlHayba_Poster.jpg`,
     // لكل جزء من الهيبة اسمه الخاص
     seasons: [
@@ -272,7 +273,7 @@ export const series: SeriesData[] = [
   {
     title: "ضيعة ضايعة", type: "كوميديا", rating: 9.2, creator: "الليث حجو",
     startYear: 2008, endYear: 2010,
-    description: "يوميات أهالي أم الطنافس، ضيعة صغيرة منسية على الساحل السوري، من خلال مغامرات أهلها البسطاء والعنيدين والطيبين.",
+    description: "Everyday life in Umm al-Tanafes, a small forgotten village on the Syrian coast, through the adventures of its simple, stubborn and kind-hearted people.",
     posterUrl: `${WIKI_AR}/b/b5/%D9%84%D9%82%D8%B7%D8%A9_%D8%B4%D8%A7%D8%B1%D8%A9_%D9%85%D8%B3%D9%84%D8%B3%D9%84_%D8%B6%D9%8A%D8%B9%D8%A9_%D8%B6%D8%A7%D9%8A%D8%B9%D8%A9.jpeg`,
     seasons: [
       { number: 1, releaseYear: 2008 },
@@ -283,7 +284,7 @@ export const series: SeriesData[] = [
   {
     title: "الزير سالم", type: "تاريخي", rating: 9.0, creator: "حاتم علي",
     startYear: 2000, endYear: 2000,
-    description: "ملحمة المهلهل، الشاعر والفارس العربي الذي أشعل ثأره لأخيه كليب حرب البسوس التي دامت أربعين عاماً.",
+    description: "The epic of al-Muhalhel, the Arab poet and knight whose revenge for his brother Kulayb started the War of Basus, which lasted forty years.",
     posterUrl: `${WIKI_AR}/1/14/Zeer_salim_series.jpg`,
     seasons: [{ number: 1, releaseYear: 2000 }],
     cast: [["salloum", "الزير سالم"], ["abed", "جساس بن مرة"]],
@@ -291,7 +292,7 @@ export const series: SeriesData[] = [
   {
     title: "صلاح الدين الأيوبي", type: "تاريخي", rating: 8.6, creator: "حاتم علي",
     startYear: 2001, endYear: 2001,
-    description: "سيرة صلاح الدين الأيوبي من نشأته حتى توحيده مصر والشام وتحريره القدس، وصراعه مع الصليبيين.",
+    description: "The life of Saladin, from his youth to uniting Egypt and the Levant and freeing Jerusalem, and his long struggle with the Crusaders.",
     posterUrl: "https://commons.wikimedia.org/wiki/Special:FilePath/Statue_of_Saladin_Damascus.jpg?width=500",
     seasons: [{ number: 1, releaseYear: 2001 }],
     cast: [["jamal", "صلاح الدين الأيوبي"]],
@@ -299,7 +300,7 @@ export const series: SeriesData[] = [
   {
     title: "ربيع قرطبة", type: "تاريخي", rating: 8.7, creator: "حاتم علي",
     startYear: 2003, endYear: 2003,
-    description: "صعود محمد بن أبي عامر من طالب فقير في قرطبة إلى الحاكم الفعلي للأندلس، الذي عُرف لاحقاً باسم المنصور.",
+    description: "The rise of Muhammad ibn Abi Amir from a poor student in Córdoba to the real ruler of al-Andalus, later known as al-Mansur.",
     posterUrl: "https://commons.wikimedia.org/wiki/Special:FilePath/Interior_Mezquita_Cordoba_Spain.jpg?width=500",
     seasons: [{ number: 1, releaseYear: 2003 }],
     cast: [["taim", "محمد بن أبي عامر"]],
@@ -307,7 +308,7 @@ export const series: SeriesData[] = [
   {
     title: "التغريبة الفلسطينية", type: "دراما", rating: 9.4, creator: "حاتم علي",
     startYear: 2004, endYear: 2004,
-    description: "حكاية عائلة فلسطينية بسيطة من ثلاثينيات القرن الماضي حتى ما بعد نكبة 1948 وتهجيرها إلى المخيمات.",
+    description: "The story of a simple Palestinian family from the 1930s until after the 1948 Nakba, when they were driven from their village to the refugee camps.",
     posterUrl: `${WIKI_AR}/e/e4/Tagreebeh_series_poster.jpg`,
     seasons: [{ number: 1, releaseYear: 2004 }],
     cast: [],

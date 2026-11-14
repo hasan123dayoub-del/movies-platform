@@ -85,6 +85,7 @@ const movieExample = {
   director: "Christopher Nolan",
   releaseYear: 2014,
   description: "A team travels through a wormhole to find humanity a new home.",
+  descriptionAr: "فريق يعبر ثقباً دودياً بحثاً عن موطن جديد للبشرية.",
 };
 const seriesExample = {
   title: "Breaking Bad",

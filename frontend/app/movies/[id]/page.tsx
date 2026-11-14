@@ -87,6 +87,11 @@ export default async function MoviePage({ params, searchParams }: PageProps<"/mo
                   {movie.description}
                 </p>
               )}
+              {movie.descriptionAr && (
+                <p dir="rtl" lang="ar" className="mt-3 max-w-2xl text-lg leading-loose text-zinc-400">
+                  {movie.descriptionAr}
+                </p>
+              )}
 
               <div className="mt-6 flex flex-wrap items-center gap-x-8 gap-y-4">
                 <div className="flex items-baseline gap-1">
