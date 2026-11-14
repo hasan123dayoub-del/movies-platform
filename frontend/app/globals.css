@@ -8,8 +8,11 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  /* Latin letters from Geist; Arabic letters fall through to IBM Plex Sans Arabic */
-  --font-sans: var(--font-geist-sans), var(--font-arabic), sans-serif;
+  /* Latin letters from Geist; Arabic letters fall through to IBM Plex Sans Arabic.
+     The two real fonts come first, by name: each variable also brings its "Fallback"
+     (Arial, while the font loads), and Arial has Arabic letters, so "Geist Fallback"
+     used to catch every Arabic letter before IBM Plex Sans Arabic was ever tried. */
+  --font-sans: "Geist", "IBM Plex Sans Arabic", var(--font-geist-sans), var(--font-arabic), sans-serif;
   --font-mono: var(--font-geist-mono);
 }
 
