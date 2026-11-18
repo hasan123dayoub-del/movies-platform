@@ -30,7 +30,7 @@ app.get("/", (req, res) => {
       { role: "ADMIN", email: "admin@movies.dev", password: "admin1234" },
       { role: "USER", email: "user@movies.dev", password: "user1234" },
     ],
-    website: "https://movies-platform-web.onrender.com",
+    website: "https://movies-platform-web.vercel.app",
   });
 });
 

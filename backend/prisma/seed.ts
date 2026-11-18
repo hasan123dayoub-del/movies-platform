@@ -22,7 +22,7 @@ const demoAccounts = [
 ] as const;
 
 async function main() {
-  // On the server (Render) the seed runs at every start: only fill an empty database,
+  // On deploy the seed runs every time: only fill an empty database,
   // never wipe data that is already there. Locally, `npx prisma db seed` still resets.
   if (process.env.SEED_ONLY_IF_EMPTY && (await prisma.movie.count()) > 0) {
     console.log("Database already has data, skipping the catalog.");

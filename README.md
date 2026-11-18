@@ -2,16 +2,16 @@
 
 [![CI](https://github.com/hasan123dayoub-del/movies-platform/actions/workflows/ci.yml/badge.svg)](https://github.com/hasan123dayoub-del/movies-platform/actions/workflows/ci.yml)
 
-**Live demo:** [movies-platform-web.onrender.com](https://movies-platform-web.onrender.com) · **Interactive API docs:** [movies-platform-api.onrender.com/docs](https://movies-platform-api.onrender.com/docs) (log in with `admin@movies.dev` / `admin1234` to see the admin area)
+**Live demo:** [movies-platform-web.vercel.app](https://movies-platform-web.vercel.app) · **Interactive API docs:** [movies-platform-api.vercel.app/docs](https://movies-platform-api.vercel.app/docs) (log in with `admin@movies.dev` / `admin1234` to see the admin area)
 
-> Hosted on free plans: after 15 minutes without visitors the site and the API go to sleep, so the first visit can take about a minute to wake them up.
+> Hosted on Vercel's free plan: the first request after a quiet period takes a second or two while a server starts.
 
 A platform for movies, TV series and actors: every movie and series has its cast, every series has its seasons and episodes, and every actor has the role they played in each. Arabic titles are shown in Arabic (right to left) next to English ones, and every movie and series has its summary in both English and Arabic. A public site to browse them, and an admin area to manage them.
 
 - **Backend:** Express 5 + TypeScript + Prisma 7 + PostgreSQL 17 (Docker) + Zod 4
 - **Frontend:** Next.js 16 (App Router, Server Components, Server Actions) + React 19 + Tailwind CSS 4
 
-[![The TV series page, with live search, a genre filter and sorting](docs/screenshot.jpg)](https://movies-platform-web.onrender.com/series)
+[![The TV series page, with live search, a genre filter and sorting](docs/screenshot.jpg)](https://movies-platform-web.vercel.app/series)
 
 ## My contribution
 
@@ -27,7 +27,7 @@ I built this project on my own, end to end (November 2026), to apply what I lear
 - **Video:** adaptive streaming (HLS) of two open films in six qualities, 144p to 1080p, encoded with ffmpeg and played with hls.js (Auto or a chosen quality); official trailers for 42 titles, each checked to come from the studio, the network or an official channel.
 - **Where to watch:** each title's legal streaming, rental and purchase offers in the visitor's country, from the TMDB API (JustWatch data), cached for 12 hours; the country comes from the browser's language and can be changed.
 - **Quality:** 92 API tests (Vitest + Supertest) against a real PostgreSQL; GitHub Actions also builds the website against a running API on every push.
-- **Deployment:** two Docker services on Render plus Neon PostgreSQL; migrations run on start, and the sample data is loaded only into an empty database.
+- **Deployment:** the website and the API on Vercel (the API as a serverless function in Frankfurt, next to the Neon PostgreSQL database); migrations run on every deploy, and the sample data is loaded only into an empty database.
 
 ## Features
 
@@ -189,16 +189,16 @@ GitHub Actions runs them on every push, then builds the website against a runnin
 
 ## Deployment
 
-Both apps run on [Render](https://render.com) as Docker services in Frankfurt, described in [`render.yaml`](render.yaml). The database is [Neon](https://neon.tech) PostgreSQL in the same region.
+Both apps run on [Vercel](https://vercel.com). The API is one serverless function in Frankfurt ([`backend/vercel.json`](backend/vercel.json), [`backend/api/index.js`](backend/api/index.js)), next to the [Neon](https://neon.tech) PostgreSQL database. The Dockerfiles still work for running both apps anywhere else.
 
-- **API** ([`backend/Dockerfile`](backend/Dockerfile)): on every start it applies new migrations, and fills the database with the sample data only if it is empty.
-- **Website** ([`frontend/Dockerfile`](frontend/Dockerfile)): pages are pre-rendered from the API at build time, so the build wakes the free API up first.
-- Secrets (`DATABASE_URL`, `JWT_SECRET`, `TMDB_TOKEN`) are set in the Render dashboard, never in the repo.
+- **API:** every deploy compiles `src/` into `dist/`, applies new migrations and fills the database with the sample data only if it is empty; Express then runs inside the function as usual.
+- **Website:** a standard Next.js deployment; pages are pre-rendered from the API at build time.
+- Secrets (`DATABASE_URL`, `JWT_SECRET`, `TMDB_TOKEN`) are set in the Vercel project settings, never in the repo.
 - **Videos** live in a separate repo, [movies-platform-media](https://github.com/hasan123dayoub-del/movies-platform-media), served by GitHub Pages, so the code repo stays small.
 
 ## API
 
-**Interactive docs:** [`/docs`](https://movies-platform-api.onrender.com/docs) (Swagger UI) lists every endpoint with its rules and examples, and lets you call them from the browser: run `POST /auth/login`, press **Authorize**, paste the token. The OpenAPI 3.1 document behind it is at `/openapi.json`. Its request bodies and query parameters are generated from the same Zod schemas the API validates with ([`src/docs/openapi.ts`](backend/src/docs/openapi.ts)), so the docs can't fall out of date.
+**Interactive docs:** [`/docs`](https://movies-platform-api.vercel.app/docs) (Swagger UI) lists every endpoint with its rules and examples, and lets you call them from the browser: run `POST /auth/login`, press **Authorize**, paste the token. The OpenAPI 3.1 document behind it is at `/openapi.json`. Its request bodies and query parameters are generated from the same Zod schemas the API validates with ([`src/docs/openapi.ts`](backend/src/docs/openapi.ts)), so the docs can't fall out of date.
 
 A ready Postman collection is in [`backend/postman/`](backend/postman/movies-platform.postman_collection.json) (File → Import).
 
@@ -306,4 +306,4 @@ Sample data sources: posters and photos are linked from Wikimedia; actor birthda
 - [x] Environment validation (Zod) and a health check
 - [x] Dockerfiles for the API and the website
 - [x] Tests (Vitest + Supertest) and GitHub Actions CI
-- [x] Deployment (Render + Neon)
+- [x] Deployment (Vercel + Neon)
